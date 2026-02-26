@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get Started | RevWhisper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Sans:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{height:100%;overflow:hidden}
+body{
+  font-family:'DM Sans','system-ui','Helvetica Neue',sans-serif;
+  background:#fff;color:#32302F;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  height:100%;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+:root{
+  --black:#32302F;
+  --white:#ffffff;
+  --accent:#4A6741;
+  --accent-light:#dce6d8;
+  --accent-border:#b3c5ab;
+  --g50:#faf9f8;--g100:#f3f1ef;--g200:#E0DCDA;--g300:#ccc8c5;--g400:#a39e9b;--g500:#706b68;--g700:#48433f;
+  --radius:8px;--radius-sm:6px;
+  --sh-sm:0 1px 3px rgba(50,48,47,.06),0 1px 2px rgba(50,48,47,.04);
+  --sh:0 4px 16px rgba(50,48,47,.07),0 2px 6px rgba(50,48,47,.04);
+  --sh-lg:0 16px 48px rgba(50,48,47,.1),0 4px 12px rgba(50,48,47,.05);
+  --heading:'Lora','Georgia',serif;
+  --body:'DM Sans','system-ui','Helvetica Neue',sans-serif;
+  --ease-out-expo:cubic-bezier(.16,1,.3,1);
+  --ease-out-back:cubic-bezier(.34,1.56,.64,1);
+  --ease-spring:cubic-bezier(.25,.1,.25,1.4);
+}
+
+/* ── Ambient Background ── */
+body::before{
+  content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(74,103,65,.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(74,103,65,.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(74,103,65,.02) 0%, transparent 70%);
+  animation:ambientDrift 20s ease-in-out infinite alternate;
+  pointer-events:none;z-index:0;
+}
+@keyframes ambientDrift{
+  0%{transform:translate(0,0) rotate(0deg)}
+  100%{transform:translate(30px,-20px) rotate(2deg)}
+}
+
+/* ── Form Container ── */
+.form-shell{width:100%;max-width:560px;padding:28px;position:relative;z-index:1;margin:auto}
+
+/* ── Step Container ── */
+.steps-viewport{position:relative}
+.step{
+  position:absolute;top:0;left:0;right:0;
+  opacity:0;visibility:hidden;
+  transform:translateY(20px);
+  transition:none;
+  pointer-events:none;
+}
+.step.active{
+  position:relative;
+  opacity:1;visibility:visible;
+  transform:translateY(0);
+  pointer-events:auto;
+}
+
+/* ── Transition States ── */
+.step.exit-up{
+  position:absolute;
+  opacity:0;visibility:visible;
+  transform:translateY(-30px) scale(.98);
+  transition:opacity .35s var(--ease-out-expo), transform .35s var(--ease-out-expo), visibility 0s .35s;
+  pointer-events:none;
+}
+.step.exit-down{
+  position:absolute;
+  opacity:0;visibility:visible;
+  transform:translateY(30px) scale(.98);
+  transition:opacity .35s var(--ease-out-expo), transform .35s var(--ease-out-expo), visibility 0s .35s;
+  pointer-events:none;
+}
+.step.enter-from-below{
+  position:relative;
+  opacity:1;visibility:visible;
+  transform:translateY(0);
+  transition:opacity .5s var(--ease-out-expo) .1s, transform .5s var(--ease-out-expo) .1s;
+  pointer-events:auto;
+}
+.step.enter-from-above{
+  position:relative;
+  opacity:1;visibility:visible;
+  transform:translateY(0);
+  transition:opacity .5s var(--ease-out-expo) .1s, transform .5s var(--ease-out-expo) .1s;
+  pointer-events:auto;
+}
+
+/* ── Staggered Child Reveal ── */
+.step.active .step-eyebrow,
+.step.enter-from-below .step-eyebrow,
+.step.enter-from-above .step-eyebrow{animation:fadeSlideUp .5s var(--ease-out-expo) .15s both}
+
+.step.active .step-title,
+.step.enter-from-below .step-title,
+.step.enter-from-above .step-title{animation:fadeSlideUp .55s var(--ease-out-expo) .22s both}
+
+.step.active .step-desc,
+.step.enter-from-below .step-desc,
+.step.enter-from-above .step-desc{animation:fadeSlideUp .55s var(--ease-out-expo) .3s both}
+
+.step.active .radio-group,
+.step.active .option-cards,
+.step.enter-from-below .radio-group,
+.step.enter-from-below .option-cards,
+.step.enter-from-above .radio-group,
+.step.enter-from-above .option-cards{animation:fadeSlideUp .5s var(--ease-out-expo) .38s both}
+
+/* First field in any step */
+.step.active .field,
+.step.enter-from-below .field,
+.step.enter-from-above .field{animation:fadeSlideUp .5s var(--ease-out-expo) .38s both}
+
+/* Second field (sibling after first) */
+.step.active .field ~ .field,
+.step.enter-from-below .field ~ .field,
+.step.enter-from-above .field ~ .field{animation-delay:.44s}
+
+/* Third field (sibling after second) */
+.step.active .field ~ .field ~ .field,
+.step.enter-from-below .field ~ .field ~ .field,
+.step.enter-from-above .field ~ .field ~ .field{animation-delay:.50s}
+
+.step.active .form-actions,
+.step.enter-from-below .form-actions,
+.step.enter-from-above .form-actions{animation:fadeSlideUp .5s var(--ease-out-expo) .46s both}
+
+@keyframes fadeSlideUp{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ── Radio Cards — stagger each card ── */
+.step.active .radio-card:nth-child(1),
+.step.enter-from-below .radio-card:nth-child(1),
+.step.enter-from-above .radio-card:nth-child(1){animation:cardPop .4s var(--ease-out-back) .4s both}
+.step.active .radio-card:nth-child(2),
+.step.enter-from-below .radio-card:nth-child(2),
+.step.enter-from-above .radio-card:nth-child(2){animation:cardPop .4s var(--ease-out-back) .46s both}
+.step.active .radio-card:nth-child(3),
+.step.enter-from-below .radio-card:nth-child(3),
+.step.enter-from-above .radio-card:nth-child(3){animation:cardPop .4s var(--ease-out-back) .52s both}
+.step.active .radio-card:nth-child(4),
+.step.enter-from-below .radio-card:nth-child(4),
+.step.enter-from-above .radio-card:nth-child(4){animation:cardPop .4s var(--ease-out-back) .58s both}
+.step.active .radio-card:nth-child(5),
+.step.enter-from-below .radio-card:nth-child(5),
+.step.enter-from-above .radio-card:nth-child(5){animation:cardPop .4s var(--ease-out-back) .64s both}
+@keyframes cardPop{
+  from{opacity:0;transform:scale(.85) translateY(8px)}
+  to{opacity:1;transform:scale(1) translateY(0)}
+}
+
+/* ── Option Cards stagger ── */
+.step.active .option-card:nth-child(1),
+.step.enter-from-below .option-card:nth-child(1),
+.step.enter-from-above .option-card:nth-child(1){animation:slideCardIn .45s var(--ease-out-expo) .42s both}
+.step.active .option-card:nth-child(2),
+.step.enter-from-below .option-card:nth-child(2),
+.step.enter-from-above .option-card:nth-child(2){animation:slideCardIn .45s var(--ease-out-expo) .52s both}
+@keyframes slideCardIn{
+  from{opacity:0;transform:translateX(-16px)}
+  to{opacity:1;transform:translateX(0)}
+}
+
+/* ── Step Header ── */
+.step-eyebrow{font-size:11px;font-weight:500;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.step-title{font-family:var(--heading);font-size:clamp(28px,4vw,36px);font-weight:400;letter-spacing:-.02em;line-height:1.15;color:var(--black);margin-bottom:10px}
+.step-title em{font-style:italic;color:var(--accent);position:relative}
+.step-title em::after{
+  content:'';position:absolute;bottom:-2px;left:-2%;width:104%;height:2px;
+  background:var(--accent);border-radius:2px;
+  transform:scaleX(0) rotate(-1.5deg);transform-origin:left;
+  animation:underlineDraw .6s var(--ease-out-expo) .55s forwards;
+}
+.step-desc{font-size:15px;color:var(--g500);line-height:1.7;font-weight:300;margin-bottom:36px;max-width:440px}
+
+/* ── Radio Card Group ── */
+.radio-group{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px;margin-bottom:36px}
+.radio-card{position:relative;cursor:pointer}
+.radio-card input{position:absolute;opacity:0;width:0;height:0}
+.radio-card .rc-label{
+  display:flex;align-items:center;justify-content:center;
+  padding:14px 8px;border:1.5px solid var(--g200);border-radius:var(--radius);
+  background:#fff;font-size:15px;font-weight:500;color:var(--g700);
+  text-align:center;cursor:pointer;position:relative;overflow:hidden;
+  transition:border-color .25s, color .25s, font-weight .25s, box-shadow .25s, transform .2s var(--ease-out-back);
+}
+.radio-card .rc-label::before{
+  content:'';position:absolute;inset:0;background:var(--accent-light);
+  border-radius:var(--radius);opacity:0;transform:scale(.8);
+  transition:opacity .3s, transform .35s var(--ease-out-expo);
+}
+.radio-card .rc-label:hover{border-color:var(--g300);transform:translateY(-2px);box-shadow:var(--sh)}
+.radio-card .rc-label:active{transform:scale(.96)}
+.radio-card input:checked + .rc-label{border-color:var(--accent);color:var(--accent);font-weight:600;box-shadow:0 0 0 1.5px var(--accent);transform:scale(1)}
+.radio-card input:checked + .rc-label::before{opacity:1;transform:scale(1)}
+.radio-card .rc-label span{position:relative;z-index:1}
+
+/* ── Option Cards (Yes/No style) ── */
+.option-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:36px}
+.option-card{position:relative;cursor:pointer}
+.option-card input{position:absolute;opacity:0;width:0;height:0}
+.option-card .oc-label{
+  display:flex;align-items:center;gap:14px;padding:16px 20px;
+  border:1.5px solid var(--g200);border-radius:var(--radius);
+  background:#fff;font-size:15px;font-weight:400;color:var(--black);
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:border-color .3s, color .3s, box-shadow .3s, transform .25s var(--ease-out-back);
+}
+.option-card .oc-label::before{
+  content:'';position:absolute;inset:0;background:var(--accent-light);
+  opacity:0;transform:scaleX(0);transform-origin:left;
+  transition:opacity .35s, transform .4s var(--ease-out-expo);
+}
+.option-card .oc-label:hover{border-color:var(--g300);transform:translateY(-2px);box-shadow:var(--sh)}
+.option-card .oc-label:active{transform:scale(.98)}
+.option-card input:checked + .oc-label{border-color:var(--accent);color:var(--accent);font-weight:500;box-shadow:0 0 0 1.5px var(--accent)}
+.option-card input:checked + .oc-label::before{opacity:1;transform:scaleX(1)}
+.oc-radio{
+  width:20px;height:20px;border-radius:50%;border:2px solid var(--g300);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:1;
+  transition:all .3s var(--ease-out-back);
+}
+.option-card input:checked + .oc-label .oc-radio{border-color:var(--accent);background:var(--accent);transform:scale(1.1)}
+.oc-radio::after{content:'';width:8px;height:8px;border-radius:50%;background:#fff;opacity:0;transform:scale(0);transition:opacity .25s,transform .3s var(--ease-out-back)}
+.option-card input:checked + .oc-label .oc-radio::after{opacity:1;transform:scale(1)}
+.oc-icon{font-size:18px;width:24px;text-align:center;position:relative;z-index:1;transition:transform .3s var(--ease-out-back)}
+.option-card input:checked + .oc-label .oc-icon{transform:scale(1.15)}
+.oc-label > div:last-child{position:relative;z-index:1}
+
+/* ── Text Inputs ── */
+.field{margin-bottom:20px}
+.field-label{display:block;font-size:13px;font-weight:500;color:var(--black);margin-bottom:7px;transition:color .2s}
+.field-input{
+  width:100%;padding:13px 16px;
+  border:1.5px solid var(--g200);border-radius:var(--radius);
+  font-size:15px;font-family:var(--body);color:var(--black);background:#fff;
+  outline:none;
+  transition:border-color .3s, box-shadow .3s var(--ease-out-expo), transform .2s var(--ease-out-expo);
+}
+.field-input::placeholder{color:var(--g400);font-weight:300}
+.field-input:hover{border-color:var(--g300)}
+.field-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,103,65,.1);transform:translateY(-1px)}
+.field:focus-within .field-label{color:var(--accent)}
+.field-input.error{border-color:#B85252;box-shadow:0 0 0 3px rgba(184,82,82,.08);animation:inputShake .4s var(--ease-out-expo)}
+@keyframes inputShake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-6px)}
+  40%{transform:translateX(5px)}
+  60%{transform:translateX(-3px)}
+  80%{transform:translateX(2px)}
+}
+.field-hint{font-size:12px;color:var(--g400);margin-top:5px;font-weight:300}
+.field-error{font-size:12px;color:#B85252;margin-top:5px;font-weight:400;display:none}
+.field-input.error ~ .field-error{display:block;animation:fadeSlideUp .3s var(--ease-out-expo)}
+.field-input.error ~ .field-hint{display:none}
+
+/* ── URL Input with icon ── */
+.input-icon-wrap{position:relative}
+.input-icon-wrap .field-input{padding-left:42px}
+.input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--g400);display:flex;align-items:center;transition:color .3s;z-index:2;pointer-events:none}
+.field:focus-within .input-icon{color:var(--accent)}
+
+/* ── Phone Input ── */
+.phone-wrap{display:flex;gap:8px}
+.phone-code{
+  width:90px;padding:13px 12px;
+  border:1.5px solid var(--g200);border-radius:var(--radius);
+  font-size:14px;font-family:var(--body);color:var(--black);background:#fff;
+  outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23a39e9b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  transition:border-color .3s,box-shadow .3s var(--ease-out-expo);
+}
+.phone-code:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,103,65,.1)}
+.phone-input{flex:1}
+
+/* ── Buttons ── */
+.form-actions{display:flex;align-items:center;gap:12px;margin-top:8px}
+.btn-next{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--black);color:#fff;font-size:14px;font-weight:400;letter-spacing:0;
+  padding:14px 28px;border-radius:var(--radius-sm);border:none;cursor:pointer;
+  font-family:var(--body);position:relative;overflow:hidden;
+  transition:transform .25s var(--ease-out-back), box-shadow .3s, opacity .3s;
+}
+.btn-next::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.15) 0%,transparent 60%);
+  opacity:0;transition:opacity .3s;
+}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(50,48,47,.15)}
+.btn-next:hover::before{opacity:1}
+.btn-next:active{transform:translateY(0) scale(.97);box-shadow:var(--sh-sm)}
+.btn-next:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-next:disabled:hover{transform:none;box-shadow:none}
+.btn-next:disabled::before{display:none}
+.btn-next.accent{background:var(--accent)}
+.btn-next .arrow{display:inline-block;transition:transform .25s var(--ease-out-expo)}
+.btn-next:hover:not(:disabled) .arrow{transform:translateX(3px)}
+
+.btn-back{
+  display:inline-flex;align-items:center;gap:6px;
+  background:transparent;color:var(--g500);font-size:13px;font-weight:400;
+  padding:14px 16px;border-radius:var(--radius-sm);border:1.5px solid var(--g200);
+  cursor:pointer;font-family:var(--body);
+  transition:border-color .25s,color .25s,transform .2s var(--ease-out-back),box-shadow .25s;
+}
+.btn-back .arrow{display:inline-block;transition:transform .25s var(--ease-out-expo)}
+.btn-back:hover{border-color:var(--g300);color:var(--black);transform:translateY(-1px);box-shadow:var(--sh-sm)}
+.btn-back:hover .arrow{transform:translateX(-3px)}
+.btn-back:active{transform:scale(.97)}
+
+/* ── Underline draw animation on em ── */
+@keyframes underlineDraw{
+  from{transform:scaleX(0) rotate(-1.5deg)}
+  to{transform:scaleX(1) rotate(-1.5deg)}
+}
+
+/* ── Success State ── */
+.success-state{text-align:center;padding:32px 0}
+.success-icon{
+  width:80px;height:80px;border-radius:50%;
+  background:var(--accent-light);border:2px solid var(--accent-border);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 28px;position:relative;
+}
+.success-icon svg{opacity:0}
+.success-state.revealed .success-icon{animation:iconBounceIn .6s var(--ease-out-back) forwards}
+.success-state.revealed .success-icon svg{animation:checkDraw .4s var(--ease-out-expo) .4s forwards}
+.success-state.revealed .success-icon::after{
+  content:'';position:absolute;inset:-8px;border-radius:50%;
+  border:2px solid var(--accent-border);opacity:0;
+  animation:ringPulse .8s var(--ease-out-expo) .3s forwards;
+}
+@keyframes iconBounceIn{
+  0%{opacity:0;transform:scale(0)}
+  50%{transform:scale(1.12)}
+  70%{transform:scale(.95)}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes checkDraw{
+  from{opacity:0;transform:scale(.5) rotate(-10deg)}
+  to{opacity:1;transform:scale(1) rotate(0deg)}
+}
+@keyframes ringPulse{
+  0%{opacity:0;transform:scale(.8)}
+  50%{opacity:.4}
+  100%{opacity:0;transform:scale(1.3)}
+}
+
+.success-title{
+  font-family:var(--heading);font-size:clamp(26px,4vw,32px);font-weight:400;
+  letter-spacing:-.02em;color:var(--black);margin-bottom:10px;
+  opacity:0;
+}
+.success-title em{font-style:italic;color:var(--accent)}
+.success-state.revealed .success-title{animation:fadeSlideUp .5s var(--ease-out-expo) .5s forwards}
+
+.success-desc{
+  font-size:15px;color:var(--g500);line-height:1.7;font-weight:300;
+  max-width:400px;margin:0 auto 32px;opacity:0;
+}
+.success-state.revealed .success-desc{animation:fadeSlideUp .5s var(--ease-out-expo) .6s forwards}
+
+.success-detail{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:12px 20px;background:var(--g50);border:1px solid var(--g200);
+  border-radius:var(--radius);font-size:13px;color:var(--g500);opacity:0;
+}
+.success-detail strong{color:var(--black);font-weight:600}
+.success-state.revealed .success-detail{animation:fadeSlideUp .5s var(--ease-out-expo) .72s forwards}
+
+/* ── Confetti Particles ── */
+.confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:100;overflow:hidden}
+.confetti{
+  position:absolute;width:8px;height:8px;border-radius:2px;
+  opacity:0;
+}
+.confetti.go{animation:confettiFall var(--fall-dur, 2.5s) var(--ease-out-expo) forwards}
+@keyframes confettiFall{
+  0%{opacity:1;transform:translateY(0) rotate(0deg) scale(1)}
+  20%{opacity:1}
+  100%{opacity:0;transform:translateY(calc(100vh + 50px)) rotate(var(--spin, 720deg)) scale(.3)}
+}
+
+/* ── Page Load Animation ── */
+.form-shell{opacity:0;transform:translateY(16px);animation:initialLoad .7s var(--ease-out-expo) .1s forwards}
+@keyframes initialLoad{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ── Responsive ── */
+@media(max-width:640px){
+  html,body{overflow-y:auto}
+  body{padding:20px}
+  .radio-group{grid-template-columns:repeat(3,1fr)}
+  .form-shell{max-width:100%}
+  .step-title{font-size:26px}
+  .phone-wrap{flex-direction:column}
+  .phone-code{width:100%}
+}
+</style>
+</head>
+<body>
+
+<div class="form-shell">
+  <div class="steps-viewport">
+
+    <!-- Step 1: Portfolio Size -->
+    <div class="step active" data-step="0">
+      <div class="step-eyebrow">Portfolio Overview</div>
+      <h1 class="step-title">How many listings are you <em>optimizing?</em></h1>
+      <p class="step-desc">RevWhisper works with individual hosts and multi-property portfolios. Tell us where you're starting.</p>
+      <div class="radio-group">
+        <label class="radio-card">
+          <input type="radio" name="listings" value="1">
+          <div class="rc-label"><span>1</span></div>
+        </label>
+        <label class="radio-card">
+          <input type="radio" name="listings" value="2-5">
+          <div class="rc-label"><span>2–5</span></div>
+        </label>
+        <label class="radio-card">
+          <input type="radio" name="listings" value="6-10">
+          <div class="rc-label"><span>6–10</span></div>
+        </label>
+        <label class="radio-card">
+          <input type="radio" name="listings" value="11-25">
+          <div class="rc-label"><span>11–25</span></div>
+        </label>
+        <label class="radio-card">
+          <input type="radio" name="listings" value="25+">
+          <div class="rc-label"><span>25+</span></div>
+        </label>
+      </div>
+      <div class="form-actions">
+        <button class="btn-next" onclick="nextStep()" disabled id="btn-step0">Next <span class="arrow">→</span></button>
+      </div>
+    </div>
+
+    <!-- Step 2: Airbnb Profile URL -->
+    <div class="step" data-step="1">
+      <div class="step-eyebrow">Portfolio Overview</div>
+      <h1 class="step-title">What's your Airbnb <em>profile URL?</em></h1>
+      <p class="step-desc">We'll pull your full listing portfolio directly from your profile. No need to submit URLs one by one.</p>
+      <div class="field">
+        <label class="field-label" for="airbnb-url">Airbnb Profile URL</label>
+        <div class="input-icon-wrap">
+          <div class="input-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          </div>
+          <input type="url" class="field-input" id="airbnb-url" placeholder="https://www.airbnb.com/users/show/..." autocomplete="off">
+        </div>
+        <div class="field-hint">Paste your full Airbnb profile page link</div>
+        <div class="field-error">Please enter a valid Airbnb URL</div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-back" onclick="prevStep()"><span class="arrow">←</span> Back</button>
+        <button class="btn-next" onclick="nextStep()" id="btn-step1">Next <span class="arrow">→</span></button>
+      </div>
+    </div>
+
+    <!-- Step 3: Contact Info -->
+    <div class="step" data-step="2">
+      <div class="step-eyebrow">Contact Info</div>
+      <h1 class="step-title">How can we <em>reach you?</em></h1>
+      <p class="step-desc">Your contact information helps us coordinate next steps and prepare ahead of the call.</p>
+      <div class="field">
+        <label class="field-label" for="full-name">Full Name</label>
+        <input type="text" class="field-input" id="full-name" placeholder="Jane Doe" autocomplete="name">
+        <div class="field-error">Please enter your name</div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="email">Email</label>
+        <div class="input-icon-wrap">
+          <div class="input-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          </div>
+          <input type="email" class="field-input" id="email" placeholder="jane@example.com" autocomplete="email">
+        </div>
+        <div class="field-error">Please enter a valid email</div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="phone">Phone Number</label>
+        <div class="phone-wrap">
+          <select class="phone-code" id="phone-code">
+            <option value="+1">🇺🇸 +1</option>
+            <option value="+44">🇬🇧 +44</option>
+            <option value="+61">🇦🇺 +61</option>
+            <option value="+33">🇫🇷 +33</option>
+            <option value="+49">🇩🇪 +49</option>
+            <option value="+81">🇯🇵 +81</option>
+            <option value="+52">🇲🇽 +52</option>
+            <option value="+34">🇪🇸 +34</option>
+            <option value="+39">🇮🇹 +39</option>
+            <option value="+55">🇧🇷 +55</option>
+          </select>
+          <input type="tel" class="field-input phone-input" id="phone" placeholder="(555) 123-4567" autocomplete="tel">
+        </div>
+        <div class="field-error">Please enter a valid phone number</div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-back" onclick="prevStep()"><span class="arrow">←</span> Back</button>
+        <button class="btn-next" onclick="nextStep()" id="btn-step2">Next <span class="arrow">→</span></button>
+      </div>
+    </div>
+
+    <!-- Step 4: Schedule Call -->
+    <div class="step" data-step="3">
+      <div class="step-eyebrow">Contact Info</div>
+      <h1 class="step-title">Would you like to <em>schedule a call?</em></h1>
+      <p class="step-desc">We'll walk through your listings and show you exactly where the revenue opportunities are.</p>
+      <div class="option-cards">
+        <label class="option-card">
+          <input type="radio" name="schedule" value="yes">
+          <div class="oc-label">
+            <div class="oc-radio"></div>
+            <div class="oc-icon">📞</div>
+            <div>
+              <div style="font-weight:500">Yes, let's talk</div>
+              <div style="font-size:13px;color:var(--g400);font-weight:300;margin-top:2px">We'll send a scheduling link to your email</div>
+            </div>
+          </div>
+        </label>
+        <label class="option-card">
+          <input type="radio" name="schedule" value="no">
+          <div class="oc-label">
+            <div class="oc-radio"></div>
+            <div class="oc-icon">📋</div>
+            <div>
+              <div style="font-weight:500">Not right now</div>
+              <div style="font-size:13px;color:var(--g400);font-weight:300;margin-top:2px">Send me a listing analysis report instead</div>
+            </div>
+          </div>
+        </label>
+      </div>
+      <div class="form-actions">
+        <button class="btn-back" onclick="prevStep()"><span class="arrow">←</span> Back</button>
+        <button class="btn-next accent" onclick="submitForm()" disabled id="btn-step3">Submit <span class="arrow">→</span></button>
+      </div>
+    </div>
+
+    <!-- Success State -->
+    <div class="step" data-step="4">
+      <div class="success-state" id="success-state">
+        <div class="success-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="#4A6741" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <h2 class="success-title">You're <em>all set.</em></h2>
+        <p class="success-desc">We've received your information and we'll be in touch shortly. Check your inbox for next steps.</p>
+        <div class="success-detail">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--accent)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <span>Confirmation sent to <strong id="confirm-email">your email</strong></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Confetti container (injected on success) -->
+<div class="confetti-wrap" id="confetti-wrap"></div>
+
+<script>
+let current = 0;
+const totalSteps = 4;
+let isTransitioning = false;
+
+// Enable/disable next based on selection
+document.querySelectorAll('input[name="listings"]').forEach(r => {
+  r.addEventListener('change', () => {
+    document.getElementById('btn-step0').disabled = false;
+  });
+});
+
+document.querySelectorAll('input[name="schedule"]').forEach(r => {
+  r.addEventListener('change', () => {
+    document.getElementById('btn-step3').disabled = false;
+  });
+});
+
+function transitionStep(from, to, direction) {
+  if (isTransitioning) return;
+  isTransitioning = true;
+
+  const fromEl = document.querySelector(`.step[data-step="${from}"]`);
+  const toEl = document.querySelector(`.step[data-step="${to}"]`);
+  if (!fromEl || !toEl) { isTransitioning = false; return; }
+
+  // Exit old step
+  fromEl.classList.remove('active', 'enter-from-below', 'enter-from-above');
+  fromEl.classList.add(direction === 'forward' ? 'exit-up' : 'exit-down');
+
+  // Prepare new step off-screen
+  toEl.classList.remove('active', 'exit-up', 'exit-down');
+  toEl.style.position = 'relative';
+  toEl.style.opacity = '0';
+  toEl.style.visibility = 'visible';
+  toEl.style.transform = direction === 'forward' ? 'translateY(24px)' : 'translateY(-24px)';
+  toEl.style.transition = 'none';
+  toEl.style.pointerEvents = 'auto';
+
+  // Force layout recalc
+  void toEl.offsetHeight;
+
+  // Enter new step
+  requestAnimationFrame(() => {
+    toEl.style.transition = '';
+    toEl.classList.add(direction === 'forward' ? 'enter-from-below' : 'enter-from-above');
+    toEl.style.position = '';
+    toEl.style.opacity = '';
+    toEl.style.visibility = '';
+    toEl.style.transform = '';
+    toEl.style.pointerEvents = '';
+  });
+
+  // Cleanup
+  setTimeout(() => {
+    fromEl.classList.remove('exit-up', 'exit-down');
+    fromEl.style.position = '';
+    isTransitioning = false;
+  }, 500);
+}
+
+function validateStep(step) {
+  let valid = true;
+  if (step === 1) {
+    const url = document.getElementById('airbnb-url');
+    const val = url.value.trim();
+    if (!val || (!val.includes('airbnb.com') && !val.includes('airbnb.'))) {
+      url.classList.add('error');
+      valid = false;
+    } else {
+      url.classList.remove('error');
+    }
+  }
+  if (step === 2) {
+    const name = document.getElementById('full-name');
+    const email = document.getElementById('email');
+    const phone = document.getElementById('phone');
+    if (!name.value.trim()) { name.classList.add('error'); valid = false; } else { name.classList.remove('error'); }
+    if (!email.value.trim() || !email.value.includes('@')) { email.classList.add('error'); valid = false; } else { email.classList.remove('error'); }
+    if (!phone.value.trim()) { phone.classList.add('error'); valid = false; } else { phone.classList.remove('error'); }
+  }
+  return valid;
+}
+
+function nextStep() {
+  if (!validateStep(current)) return;
+  const from = current;
+  current++;
+  transitionStep(from, current, 'forward');
+}
+
+function prevStep() {
+  if (current > 0) {
+    const from = current;
+    current--;
+    transitionStep(from, current, 'backward');
+  }
+}
+
+function launchConfetti() {
+  const wrap = document.getElementById('confetti-wrap');
+  const colors = ['#4A6741','#dce6d8','#b3c5ab','#32302F','#E0DCDA','#706b68','#8aab7f','#c5d6bf'];
+  const count = 60;
+
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.left = (Math.random() * 100) + '%';
+    el.style.top = (-10 - Math.random() * 20) + '%';
+    el.style.width = (5 + Math.random() * 6) + 'px';
+    el.style.height = (5 + Math.random() * 6) + 'px';
+    el.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+    el.style.setProperty('--fall-dur', (1.8 + Math.random() * 1.5) + 's');
+    el.style.setProperty('--spin', (360 + Math.random() * 720) + 'deg');
+    wrap.appendChild(el);
+
+    // Stagger the start
+    setTimeout(() => el.classList.add('go'), Math.random() * 400);
+  }
+
+  // Cleanup after animation
+  setTimeout(() => { wrap.innerHTML = ''; }, 4000);
+}
+
+function submitForm() {
+  const data = {
+    listings: document.querySelector('input[name="listings"]:checked')?.value,
+    airbnbUrl: document.getElementById('airbnb-url').value,
+    name: document.getElementById('full-name').value,
+    email: document.getElementById('email').value,
+    phone: document.getElementById('phone-code').value + ' ' + document.getElementById('phone').value,
+    schedule: document.querySelector('input[name="schedule"]:checked')?.value
+  };
+
+  console.log('Form submitted:', data);
+
+  // Send data to Make.com webhook
+  fetch('https://hook.us2.make.com/23rh699yc1ob5tcetd6ionr18431yvyr', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+
+  // If they want a call, redirect to Cal.com with pre-filled params
+  if (data.schedule === 'yes') {
+    const params = new URLSearchParams({
+      name: data.name,
+      email: data.email,
+    });
+    window.location.href = `https://cal.com/rev-whisper/discovery?${params.toString()}`;
+    return;
+  }
+
+  // Otherwise show success state
+  document.getElementById('confirm-email').textContent = data.email;
+
+  const from = current;
+  current = totalSteps;
+  transitionStep(from, current, 'forward');
+
+  // Trigger success animations after step transition
+  setTimeout(() => {
+    document.getElementById('success-state').classList.add('revealed');
+    launchConfetti();
+  }, 350);
+}
+
+// Clear error on input
+document.querySelectorAll('.field-input').forEach(input => {
+  input.addEventListener('input', () => {
+    input.classList.remove('error');
+  });
+});
+</script>
+
+</body>
+</html>
