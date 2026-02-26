@@ -93,40 +93,59 @@ body{
   max-width:500px;padding:32px;
 }
 
-/* ── Checkmark Ring ── */
+/* ── Logo → Checkmark Morph ── */
 .check-ring{
   width:80px;height:80px;border-radius:50%;margin:0 auto 36px;
   position:relative;
   opacity:0;transform:scale(.3);
   animation:ringReveal .6s var(--ease-out-back) 1.6s forwards;
 }
+.bubble-svg{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  z-index:2;width:64px;height:64px;
+  animation:bubbleFade .4s ease 2.6s forwards;
+}
+.bubble-path{
+  stroke-dasharray:150;stroke-dashoffset:150;
+  animation:strokeDraw .7s var(--ease-out-expo) 1.7s forwards;
+}
+.morph-svg{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  z-index:3;width:64px;height:64px;
+}
+.morph-path{
+  d:path("M15 21C15 21 17 14 19.5 14C22 14 22 28 24.5 28C27 28 27 16 29 16C31 16 32 22 33 22");
+  stroke-dasharray:60;stroke-dashoffset:60;
+  animation:
+    strokeDraw .6s var(--ease-out-expo) 1.8s forwards,
+    morphToCheck .5s var(--ease-out-expo) 2.6s forwards;
+}
 .check-ring-circle{
   position:absolute;inset:0;border-radius:50%;
   border:2px solid var(--accent);
   opacity:0;
-  animation:ringDraw .8s var(--ease-out-expo) 1.6s forwards;
+  animation:ringDraw .5s var(--ease-out-expo) 2.6s forwards;
 }
 .check-ring-fill{
   position:absolute;inset:3px;border-radius:50%;
   background:var(--accent-light);
   transform:scale(0);
-  animation:fillPop .4s var(--ease-out-back) 2s forwards;
-}
-.check-ring svg{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  z-index:2;stroke-dasharray:30;stroke-dashoffset:30;
-  animation:checkStroke .4s ease 2.2s forwards;
+  animation:fillPop .4s var(--ease-out-back) 3s forwards;
 }
 @keyframes ringReveal{to{opacity:1;transform:scale(1)}}
+@keyframes strokeDraw{to{stroke-dashoffset:0}}
+@keyframes bubbleFade{to{opacity:0}}
 @keyframes ringDraw{to{opacity:1}}
 @keyframes fillPop{to{transform:scale(1)}}
-@keyframes checkStroke{to{stroke-dashoffset:0}}
+@keyframes morphToCheck{
+  to{d:path("M15 24C15 24 17 27 19.5 29C22 31 22 28 24 25C26 22 28 17 29.5 15C31 13 33 12 33 12")}
+}
 
 /* Breathing ring */
 .check-ring::after{
   content:'';position:absolute;inset:-10px;border-radius:50%;
   border:1px solid rgba(74,103,65,.15);
-  animation:breathe 3s ease-in-out 2.5s infinite;
+  animation:breathe 3s ease-in-out 3.2s infinite;
 }
 @keyframes breathe{
   0%,100%{transform:scale(1);opacity:.4}
@@ -137,7 +156,7 @@ body{
 .success-title{
   font-family:var(--heading);font-size:clamp(32px,6vw,48px);font-weight:500;
   letter-spacing:-.025em;line-height:1.1;margin-bottom:16px;
-  opacity:0;animation:layerUp .7s var(--ease-out-expo) 2.3s forwards;
+  opacity:0;animation:layerUp .7s var(--ease-out-expo) 2.9s forwards;
 }
 .success-title em{
   font-style:italic;position:relative;
@@ -146,7 +165,7 @@ body{
   content:'';position:absolute;bottom:-2px;left:-2%;width:104%;height:2px;
   background:var(--accent);border-radius:2px;
   transform:scaleX(0) rotate(-1.5deg);transform-origin:left;
-  animation:underlineDraw .6s var(--ease-out-expo) 2.8s forwards;
+  animation:underlineDraw .6s var(--ease-out-expo) 3.4s forwards;
 }
 @keyframes underlineDraw{
   from{transform:scaleX(0) rotate(-1.5deg)}
@@ -157,13 +176,13 @@ body{
 .success-sub{
   font-size:16px;color:var(--g500);max-width:360px;margin:0 auto 40px;
   line-height:1.7;font-weight:300;
-  opacity:0;animation:layerUp .7s var(--ease-out-expo) 2.5s forwards;
+  opacity:0;animation:layerUp .7s var(--ease-out-expo) 3.1s forwards;
 }
 
 /* ── Timeline Steps ── */
 .timeline{
   text-align:left;max-width:380px;margin:0 auto;
-  opacity:0;animation:layerUp .7s var(--ease-out-expo) 2.7s forwards;
+  opacity:0;animation:layerUp .7s var(--ease-out-expo) 3.3s forwards;
 }
 .timeline-item{display:flex;gap:16px;position:relative}
 .timeline-item + .timeline-item{margin-top:0}
@@ -176,17 +195,17 @@ body{
   background:var(--accent);flex-shrink:0;
   opacity:0;transform:scale(0);
 }
-.timeline-item:nth-child(1) .timeline-dot{animation:dotPop .3s var(--ease-out-back) 3s forwards}
-.timeline-item:nth-child(2) .timeline-dot{animation:dotPop .3s var(--ease-out-back) 3.15s forwards}
-.timeline-item:nth-child(3) .timeline-dot{animation:dotPop .3s var(--ease-out-back) 3.3s forwards}
+.timeline-item:nth-child(1) .timeline-dot{animation:dotPop .3s var(--ease-out-back) 3.6s forwards}
+.timeline-item:nth-child(2) .timeline-dot{animation:dotPop .3s var(--ease-out-back) 3.75s forwards}
+.timeline-item:nth-child(3) .timeline-dot{animation:dotPop .3s var(--ease-out-back) 3.9s forwards}
 @keyframes dotPop{to{opacity:1;transform:scale(1)}}
 
 .timeline-line{
   width:1px;flex:1;background:var(--g200);margin:6px 0;
   transform:scaleY(0);transform-origin:top;
 }
-.timeline-item:nth-child(1) .timeline-line{animation:lineGrow .4s ease 3.05s forwards}
-.timeline-item:nth-child(2) .timeline-line{animation:lineGrow .4s ease 3.2s forwards}
+.timeline-item:nth-child(1) .timeline-line{animation:lineGrow .4s ease 3.65s forwards}
+.timeline-item:nth-child(2) .timeline-line{animation:lineGrow .4s ease 3.8s forwards}
 @keyframes lineGrow{to{transform:scaleY(1)}}
 
 .timeline-content{padding:0 0 24px}
@@ -202,7 +221,7 @@ body{
   letter-spacing:-.01em;
   transition:transform .2s,box-shadow .2s;
   box-shadow:0 4px 16px rgba(74,103,65,.25);
-  opacity:0;animation:layerUp .6s var(--ease-out-expo) 3.4s forwards;
+  opacity:0;animation:layerUp .6s var(--ease-out-expo) 4s forwards;
 }
 .btn-accent:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(74,103,65,.3)}
 .btn-accent svg{transition:transform .2s}
@@ -252,12 +271,15 @@ body{
 <!-- Content -->
 <div class="reveal-layer">
 
-  <!-- Checkmark -->
+  <!-- Logo → Checkmark -->
   <div class="check-ring">
     <div class="check-ring-circle"></div>
     <div class="check-ring-fill"></div>
-    <svg width="28" height="28" fill="none" stroke="#4A6741" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="6,14 12,20 22,8"/>
+    <svg class="bubble-svg" viewBox="0 0 48 48" fill="none" stroke="#4A6741" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path class="bubble-path" d="M6 20C6 12 12 6 22 6H26C36 6 42 12 42 20C42 28 36 34 26 34H20L12 40V34C8.5 32 6 27 6 20Z"/>
+    </svg>
+    <svg class="morph-svg" viewBox="0 0 48 48" fill="none" stroke="#4A6741" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path class="morph-path" d="M15 21C15 21 17 14 19.5 14C22 14 22 28 24.5 28C27 28 27 16 29 16C31 16 32 22 33 22"/>
     </svg>
   </div>
 
@@ -298,7 +320,7 @@ body{
     </div>
   </div>
 
-  <a href="index.html" class="btn-accent">
+  <a href="/" class="btn-accent">
     Back to RevWhisper
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
   </a>
