@@ -101,12 +101,13 @@ body{
   width:80px;height:80px;border-radius:50%;margin:0 auto 36px;
   position:relative;
   opacity:0;transform:scale(.3);
+  will-change:transform,opacity;
   animation:ringReveal .6s var(--ease-out-back) 1.6s forwards;
 }
 .bubble-svg{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   z-index:2;width:64px;height:64px;
-  animation:bubbleFade .4s ease 2.6s forwards;
+  animation:bubbleFade .35s ease 2.45s forwards;
 }
 .bubble-path{
   stroke-dasharray:150;stroke-dashoffset:150;
@@ -121,23 +122,25 @@ body{
   stroke-dasharray:60;stroke-dashoffset:60;
   animation:
     strokeDraw .6s var(--ease-out-expo) 1.8s forwards,
-    morphToCheck .5s var(--ease-out-expo) 2.6s forwards;
+    dashClear .001s step-start 2.45s forwards,
+    morphToCheck .5s var(--ease-out-expo) 2.75s forwards;
 }
 .check-ring-circle{
   position:absolute;inset:0;border-radius:50%;
   border:2px solid var(--accent);
   opacity:0;
-  animation:ringDraw .5s var(--ease-out-expo) 2.6s forwards;
+  animation:ringDraw .5s var(--ease-out-expo) 2.75s forwards;
 }
 .check-ring-fill{
   position:absolute;inset:3px;border-radius:50%;
   background:var(--accent-light);
   transform:scale(0);
-  animation:fillPop .4s var(--ease-out-back) 3s forwards;
+  animation:fillPop .4s var(--ease-out-back) 3.15s forwards;
 }
 @keyframes ringReveal{to{opacity:1;transform:scale(1)}}
 @keyframes strokeDraw{to{stroke-dashoffset:0}}
 @keyframes bubbleFade{to{opacity:0}}
+@keyframes dashClear{to{stroke-dasharray:9999}}
 @keyframes ringDraw{to{opacity:1}}
 @keyframes fillPop{to{transform:scale(1)}}
 @keyframes morphToCheck{
@@ -148,7 +151,7 @@ body{
 .check-ring::after{
   content:'';position:absolute;inset:-10px;border-radius:50%;
   border:1px solid rgba(74,103,65,.15);
-  animation:breathe 3s ease-in-out 3.2s infinite;
+  animation:breathe 3s ease-in-out 3.35s infinite;
 }
 @keyframes breathe{
   0%,100%{transform:scale(1);opacity:.4}
