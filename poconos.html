@@ -43,16 +43,61 @@ body{
 }
 .intro-overlay.fade-out{opacity:0;pointer-events:none}
 .intro-overlay.hidden{display:none}
-#intro-canvas{position:absolute;inset:0;z-index:0}
+
+/* Ripple animation */
+.ripple-container{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;z-index:0;
+}
+.ripple{
+  position:absolute;border-radius:50%;
+  border:1.5px solid var(--accent);
+  opacity:0;
+  animation:rippleExpand var(--duration, 3s) var(--ease-out-expo) var(--delay, 0s) forwards;
+}
+@keyframes rippleExpand{
+  0%{width:0;height:0;opacity:0;border-width:2px}
+  10%{opacity:.45}
+  40%{opacity:.18}
+  100%{width:var(--size, 200vmax);height:var(--size, 200vmax);opacity:0;border-width:.5px}
+}
+.ripple-fill{
+  position:absolute;border-radius:50%;
+  background:var(--accent-glow);
+  opacity:0;
+  animation:rippleFillExpand var(--duration, 3s) var(--ease-out-expo) var(--delay, 0s) forwards;
+}
+@keyframes rippleFillExpand{
+  0%{width:0;height:0;opacity:0}
+  15%{opacity:.1}
+  50%{opacity:.04}
+  100%{width:var(--size, 150vmax);height:var(--size, 150vmax);opacity:0}
+}
+.intro-orb{
+  position:relative;z-index:2;
+  width:10px;height:10px;border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 20px var(--accent-glow),0 0 60px var(--accent-glow);
+  animation:orbPulse .6s var(--ease-out-back) .15s both, orbFade .4s ease 1.6s forwards;
+}
+@keyframes orbPulse{
+  0%{transform:scale(0);opacity:0}
+  60%{transform:scale(1.6);opacity:1}
+  100%{transform:scale(1);opacity:1}
+}
+@keyframes orbFade{
+  to{opacity:0;transform:scale(.5)}
+}
 .intro-logo{
-  position:relative;z-index:1;
-  opacity:0;transform:scale(.8);
-  transition:opacity .4s ease,transform .4s var(--ease-out-expo);
+  position:absolute;z-index:3;
+  opacity:0;transform:scale(.85);
+  transition:opacity .45s ease,transform .45s var(--ease-out-expo);
 }
 .intro-logo.visible{opacity:1;transform:scale(1)}
 .intro-logo.burst{
-  opacity:0;transform:scale(2.5);
-  transition:opacity .35s ease,transform .5s var(--ease-out-expo);
+  opacity:0;transform:scale(2);
+  transition:opacity .3s ease,transform .45s var(--ease-out-expo);
 }
 .deck{opacity:0;transition:opacity .5s ease .1s}
 .deck.revealed{opacity:1}
@@ -443,7 +488,7 @@ body{
 .slide.enter-from-below .team-bubble,
 .slide.enter-from-above .team-bubble,
 .slide.enter-reveal .team-bubble{
-  opacity:0.9;
+  opacity:0.8;
 }
 .team-bubble img{
   width:100%;height:100%;object-fit:cover;display:block;
@@ -558,7 +603,8 @@ body{
 
 <!-- Intro Overlay -->
 <div class="intro-overlay" id="intro-overlay">
-  <canvas id="intro-canvas"></canvas>
+  <div class="ripple-container" id="ripples"></div>
+  <div class="intro-orb"></div>
   <div class="intro-logo" id="intro-logo">
     <svg viewBox="0 0 48 48" width="120" height="120" fill="none">
       <path d="M6 20C6 12 12 6 22 6H26C36 6 42 12 42 20C42 28 36 34 26 34H20L12 40V34C8.5 32 6 27 6 20Z" stroke="#32302F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -828,144 +874,46 @@ body{
 
 <script>
 // ═══════════════════════════════════════════════
-// 0. INTRO: PARTICLE CONVERGENCE ANIMATION
+// 0. INTRO: RIPPLE ANIMATION
 // ═══════════════════════════════════════════════
 (function() {
   const overlay = document.getElementById('intro-overlay');
-  const canvas = document.getElementById('intro-canvas');
-  const ctx = canvas.getContext('2d');
+  const container = document.getElementById('ripples');
   const logoEl = document.getElementById('intro-logo');
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  let W = window.innerWidth, H = window.innerHeight;
-  canvas.width = W * dpr; canvas.height = H * dpr;
-  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const count = 7;
 
-  const COUNT = 80;
-  const cx = W / 2, cy = H / 2;
-  const particles = [];
-
-  // Logo target points (sampled from the speech bubble shape)
-  const logoPoints = [];
-  const logoScale = 2.8;
-  const logoOx = cx - 24 * logoScale, logoOy = cy - 22 * logoScale;
-  // Sample points along the speech bubble path
-  const bubblePts = [
-    [6,20],[8,14],[12,9],[16,7],[20,6],[24,6],[28,7],[32,9],[36,12],[40,16],[42,20],
-    [42,24],[40,28],[36,32],[30,34],[26,34],[20,34],[16,36],[12,40],[14,34],[10,30],[8,26],[6,24]
-  ];
-  // Wave points
-  const wavePts = [[15,21],[17,14],[19.5,14],[22,28],[24.5,28],[27,16],[29,16],[31,16],[32,22],[33,22]];
-  bubblePts.forEach(p => logoPoints.push({ x: logoOx + p[0] * logoScale, y: logoOy + p[1] * logoScale }));
-  wavePts.forEach(p => logoPoints.push({ x: logoOx + p[0] * logoScale, y: logoOy + p[1] * logoScale }));
-
-  for (let i = 0; i < COUNT; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const dist = 300 + Math.random() * 400;
-    const target = logoPoints[i % logoPoints.length];
-    particles.push({
-      x: cx + Math.cos(angle) * dist,
-      y: cy + Math.sin(angle) * dist,
-      tx: target.x + (Math.random() - .5) * 8,
-      ty: target.y + (Math.random() - .5) * 8,
-      size: 1.5 + Math.random() * 3,
-      opacity: .15 + Math.random() * .45,
-      shape: Math.random() > .6 ? 'diamond' : 'circle',
-      vx: 0, vy: 0,
-      burstVx: (Math.random() - .5) * 12,
-      burstVy: (Math.random() - .5) * 12,
-    });
+  // Spawn ripple rings and fills
+  for (let i = 0; i < count; i++) {
+    const r = document.createElement('div');
+    r.className = 'ripple';
+    r.style.setProperty('--delay', (.2 + i * .3) + 's');
+    r.style.setProperty('--duration', (2.2 + i * .35) + 's');
+    r.style.setProperty('--size', (70 + i * 28) + 'vmax');
+    container.appendChild(r);
+    if (i % 2 === 0) {
+      const f = document.createElement('div');
+      f.className = 'ripple-fill';
+      f.style.setProperty('--delay', (.2 + i * .3) + 's');
+      f.style.setProperty('--duration', (2.2 + i * .35) + 's');
+      f.style.setProperty('--size', (55 + i * 22) + 'vmax');
+      container.appendChild(f);
+    }
   }
 
-  let phase = 'converge'; // converge -> hold -> burst -> done
-  let startTime = performance.now();
-  const CONVERGE_DUR = 1200;
-  const HOLD_DUR = 600;
-  const BURST_DUR = 500;
+  // Show logo after ripples start expanding
+  setTimeout(() => logoEl.classList.add('visible'), 700);
 
-  function easeOutExpo(t) { return t === 1 ? 1 : 1 - Math.pow(2, -10 * t); }
-
-  function draw(now) {
-    const elapsed = now - startTime;
-    ctx.clearRect(0, 0, W, H);
-
-    if (phase === 'converge') {
-      const t = Math.min(elapsed / CONVERGE_DUR, 1);
-      const e = easeOutExpo(t);
-      particles.forEach(p => {
-        p.x = p.x + (p.tx - p.x) * (.04 + e * .08);
-        p.y = p.y + (p.ty - p.y) * (.04 + e * .08);
-      });
-      // Show logo when particles are mostly converged
-      if (t > .65 && !logoEl.classList.contains('visible')) {
-        logoEl.classList.add('visible');
-      }
-      if (t >= 1) { phase = 'hold'; startTime = now; }
-    } else if (phase === 'hold') {
-      if (elapsed >= HOLD_DUR) {
-        phase = 'burst';
-        startTime = now;
-        logoEl.classList.add('burst');
-      }
-    } else if (phase === 'burst') {
-      const t = Math.min(elapsed / BURST_DUR, 1);
-      particles.forEach(p => {
-        p.x += p.burstVx * (1 - t);
-        p.y += p.burstVy * (1 - t);
-        p.opacity *= .96;
-      });
-      if (t >= 1) {
-        phase = 'done';
-        overlay.classList.add('fade-out');
-        document.querySelector('.deck').classList.add('revealed');
-        document.querySelector('.nav-bar').classList.add('revealed');
-        document.querySelector('.progress-bar').classList.add('revealed');
-        setTimeout(() => overlay.classList.add('hidden'), 700);
-        return;
-      }
-    }
-
-    // Draw particles
-    particles.forEach(p => {
-      ctx.globalAlpha = p.opacity;
-      ctx.fillStyle = 'rgb(74,103,65)';
-      if (p.shape === 'diamond') {
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(Math.PI / 4);
-        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
-        ctx.restore();
-      } else {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    });
-
-    // Draw connection lines during convergence
-    if (phase === 'converge' || phase === 'hold') {
-      ctx.strokeStyle = 'rgb(74,103,65)';
-      ctx.lineWidth = .5;
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < Math.min(i + 6, particles.length); j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const d = Math.sqrt(dx * dx + dy * dy);
-          if (d < 60) {
-            ctx.globalAlpha = .08 * (1 - d / 60);
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.stroke();
-          }
-        }
-      }
-    }
-
-    ctx.globalAlpha = 1;
-    requestAnimationFrame(draw);
-  }
-  requestAnimationFrame(draw);
+  // Burst logo and reveal deck
+  setTimeout(() => {
+    logoEl.classList.add('burst');
+    setTimeout(() => {
+      overlay.classList.add('fade-out');
+      document.querySelector('.deck').classList.add('revealed');
+      document.querySelector('.nav-bar').classList.add('revealed');
+      document.querySelector('.progress-bar').classList.add('revealed');
+      setTimeout(() => overlay.classList.add('hidden'), 700);
+    }, 350);
+  }, 2200);
 })();
 
 // ═══════════════════════════════════════════════
@@ -1396,20 +1344,19 @@ document.addEventListener('keydown', e => {
   const slide4El = document.querySelector('.slide[data-slide="4"]');
   const slideInner = slide4El ? slide4El.querySelector('.slide-inner') : null;
   const members = [
-    { file: 'Alex.png',      size: 100 },
-    { file: 'Angela 1.png',  size: 85 },
-    { file: 'Azmeree.png',   size: 78 },
-    { file: 'Bryan.png',     size: 95 },
-    { file: 'Cady.png',      size: 80 },
-    { file: 'Chris.png',     size: 88 },
-    { file: 'David.png',     size: 82 },
-    { file: 'Marisa.png',    size: 92 },
-    { file: 'Nic.png',       size: 75 },
-    { file: 'Spencer.png',   size: 96 },
+    { file: 'Alex.png',      size: 72 },
+    { file: 'Angela 1.png',  size: 58 },
+    { file: 'Azmeree.png',   size: 52 },
+    { file: 'Bryan.png',     size: 66 },
+    { file: 'Cady.png',      size: 54 },
+    { file: 'Chris.png',     size: 60 },
+    { file: 'David.png',     size: 56 },
+    { file: 'Marisa.png',    size: 64 },
+    { file: 'Nic.png',       size: 50 },
+    { file: 'Spencer.png',   size: 68 },
   ];
 
   const PAD = 10; // wall inset so bubbles stay fully on screen
-  const NAV_H = 60; // keep bubbles above bottom nav bar
   const bubbles = [];
   const W = () => container.offsetWidth || window.innerWidth;
   const H = () => container.offsetHeight || window.innerHeight;
@@ -1430,7 +1377,7 @@ document.addEventListener('keydown', e => {
 
   // Place bubbles only in the margin areas (not overlapping center content)
   function spawnPosition(size) {
-    const w = W(), h = H() - NAV_H; // stay above nav bar
+    const w = W(), h = H();
     const ex = getExclusion();
     for (let attempts = 0; attempts < 50; attempts++) {
       const x = PAD + Math.random() * (w - size - PAD * 2);
@@ -1457,66 +1404,91 @@ document.addEventListener('keydown', e => {
     el.appendChild(img);
     container.appendChild(el);
 
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 0.2 + Math.random() * 0.3;
     const pos = spawnPosition(m.size);
-    // Each bubble gets unique oscillation parameters for organic movement
-    const DRIFT = 8 + Math.random() * 7; // max drift radius (8-15px)
     bubbles.push({
       el,
-      anchorX: pos.x,
-      anchorY: pos.y,
+      x: pos.x,
+      y: pos.y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
       size: m.size,
-      // Unique phase offsets and speeds so they don't move in sync
-      phaseX: Math.random() * Math.PI * 2,
-      phaseY: Math.random() * Math.PI * 2,
-      speedX: 0.3 + Math.random() * 0.4,   // slow oscillation
-      speedY: 0.25 + Math.random() * 0.35,
-      driftX: DRIFT,
-      driftY: DRIFT * (0.7 + Math.random() * 0.6),
     });
   });
 
   let animId = null;
-  let startTime = null;
 
-  function step(now) {
-    if (!startTime) startTime = now;
-    const t = (now - startTime) / 1000;
+  function step() {
     const w = W(), h = H();
+    const ex = getExclusion();
 
-    // 1. Compute desired sine positions
     for (let i = 0; i < bubbles.length; i++) {
       const b = bubbles[i];
-      b.curX = b.anchorX + Math.sin(t * b.speedX + b.phaseX) * b.driftX;
-      b.curY = b.anchorY + Math.cos(t * b.speedY + b.phaseY) * b.driftY;
-    }
+      b.x += b.vx;
+      b.y += b.vy;
 
-    // 2. Collision separation — push overlapping bubbles apart
-    for (let i = 0; i < bubbles.length; i++) {
-      for (let j = i + 1; j < bubbles.length; j++) {
-        const a = bubbles[i], bub = bubbles[j];
-        const ax = a.curX + a.size / 2, ay = a.curY + a.size / 2;
-        const bx = bub.curX + bub.size / 2, by = bub.curY + bub.size / 2;
-        const dx = bx - ax, dy = by - ay;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const minDist = (a.size + bub.size) / 2 + 4; // 4px gap
-        if (dist < minDist && dist > 0) {
-          const overlap = (minDist - dist) / 2;
-          const nx = dx / dist, ny = dy / dist;
-          a.curX -= nx * overlap;
-          a.curY -= ny * overlap;
-          bub.curX += nx * overlap;
-          bub.curY += ny * overlap;
+      // Wall bounce (with padding so bubbles stay fully visible)
+      if (b.x <= PAD)              { b.x = PAD;            b.vx = Math.abs(b.vx); }
+      if (b.x + b.size >= w - PAD) { b.x = w - PAD - b.size; b.vx = -Math.abs(b.vx); }
+      if (b.y <= PAD)              { b.y = PAD;            b.vy = Math.abs(b.vy); }
+      if (b.y + b.size >= h - PAD) { b.y = h - PAD - b.size; b.vy = -Math.abs(b.vy); }
+
+      // Exclusion zone bounce (keep bubbles out of center text area)
+      if (ex) {
+        const bcx = b.x + b.size / 2, bcy = b.y + b.size / 2;
+        const r = b.size / 2;
+        // Check if bubble center is inside exclusion
+        if (bcx + r > ex.left && bcx - r < ex.right &&
+            bcy + r > ex.top  && bcy - r < ex.bottom) {
+          // Find which edge is closest and push out
+          const dLeft   = Math.abs(bcx + r - ex.left);
+          const dRight  = Math.abs(bcx - r - ex.right);
+          const dTop    = Math.abs(bcy + r - ex.top);
+          const dBottom = Math.abs(bcy - r - ex.bottom);
+          const min = Math.min(dLeft, dRight, dTop, dBottom);
+          if (min === dLeft)        { b.x = ex.left - b.size;  b.vx = -Math.abs(b.vx); }
+          else if (min === dRight)  { b.x = ex.right;          b.vx = Math.abs(b.vx); }
+          else if (min === dTop)    { b.y = ex.top - b.size;   b.vy = -Math.abs(b.vy); }
+          else                      { b.y = ex.bottom;         b.vy = Math.abs(b.vy); }
         }
       }
     }
 
-    // 3. Clamp within bounds (keep above nav bar)
-    const maxY = h - NAV_H;
+    // Bubble-bubble collisions
+    for (let i = 0; i < bubbles.length; i++) {
+      for (let j = i + 1; j < bubbles.length; j++) {
+        const a = bubbles[i], bb = bubbles[j];
+        const ax = a.x + a.size / 2, ay = a.y + a.size / 2;
+        const bx = bb.x + bb.size / 2, by = bb.y + bb.size / 2;
+        const dx = ax - bx, dy = ay - by;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const minDist = (a.size + bb.size) / 2;
+
+        if (dist < minDist && dist > 0) {
+          const nx = dx / dist, ny = dy / dist;
+          const overlap = minDist - dist;
+          a.x += nx * overlap / 2;
+          a.y += ny * overlap / 2;
+          bb.x -= nx * overlap / 2;
+          bb.y -= ny * overlap / 2;
+
+          const dvx = a.vx - bb.vx, dvy = a.vy - bb.vy;
+          const dot = dvx * nx + dvy * ny;
+          if (dot > 0) {
+            a.vx -= dot * nx;
+            a.vy -= dot * ny;
+            bb.vx += dot * nx;
+            bb.vy += dot * ny;
+          }
+        }
+      }
+    }
+
+    // Apply transforms
     for (let i = 0; i < bubbles.length; i++) {
       const b = bubbles[i];
-      b.curX = Math.max(PAD, Math.min(b.curX, w - b.size - PAD));
-      b.curY = Math.max(PAD, Math.min(b.curY, maxY - b.size));
-      b.el.style.transform = 'translate(' + b.curX.toFixed(1) + 'px,' + b.curY.toFixed(1) + 'px)';
+      b.el.style.transform = 'translate(' + b.x.toFixed(1) + 'px,' + b.y.toFixed(1) + 'px)';
     }
 
     animId = requestAnimationFrame(step);
