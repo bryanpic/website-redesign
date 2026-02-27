@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RevWhisper | Poconos STR Conference</title>
+<link rel="icon" href="rev-whisper-speech-wave-svg.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Sans:wght@200;300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'DM Sans','system-ui','Helvetica Neue',sans-serif;
+  background:#fff;color:#32302F;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+:root{
+  --black:#32302F;
+  --white:#ffffff;
+  --accent:#4A6741;
+  --accent-light:#dce6d8;
+  --accent-border:#b3c5ab;
+  --accent-glow:rgba(74,103,65,.15);
+  --g50:#faf9f8;--g100:#f3f1ef;--g200:#E0DCDA;--g300:#ccc8c5;--g400:#a39e9b;--g500:#706b68;--g700:#48433f;
+  --radius:8px;--radius-sm:6px;
+  --sh-sm:0 1px 3px rgba(50,48,47,.06),0 1px 2px rgba(50,48,47,.04);
+  --sh:0 4px 16px rgba(50,48,47,.07),0 2px 6px rgba(50,48,47,.04);
+  --sh-lg:0 16px 48px rgba(50,48,47,.1),0 4px 12px rgba(50,48,47,.05);
+  --heading:'Lora','Georgia',serif;
+  --body:'DM Sans','system-ui','Helvetica Neue',sans-serif;
+  --mono:'DM Mono','SF Mono','Fira Code',monospace;
+  --ease-out-expo:cubic-bezier(.16,1,.3,1);
+  --ease-out-back:cubic-bezier(.34,1.56,.64,1);
+}
+
+/* ── Intro Overlay ── */
+.intro-overlay{
+  position:fixed;inset:0;z-index:500;background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .6s ease;
+}
+.intro-overlay.fade-out{opacity:0;pointer-events:none}
+.intro-overlay.hidden{display:none}
+#intro-canvas{position:absolute;inset:0;z-index:0}
+.intro-logo{
+  position:relative;z-index:1;
+  opacity:0;transform:scale(.8);
+  transition:opacity .4s ease,transform .4s var(--ease-out-expo);
+}
+.intro-logo.visible{opacity:1;transform:scale(1)}
+.intro-logo.burst{
+  opacity:0;transform:scale(2.5);
+  transition:opacity .35s ease,transform .5s var(--ease-out-expo);
+}
+.deck{opacity:0;transition:opacity .5s ease .1s}
+.deck.revealed{opacity:1}
+.nav-bar{opacity:0;transition:opacity .4s ease .3s}
+.nav-bar.revealed{opacity:1}
+.progress-bar{opacity:0;transition:opacity .4s ease .3s}
+.progress-bar.revealed{opacity:1}
+
+/* ── Canvas Background ── */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ── Progress Bar (top) ── */
+.progress-bar{position:fixed;top:0;left:0;right:0;height:3px;background:var(--g200);z-index:200;overflow:hidden}
+.progress-fill{height:100%;width:25%;background:linear-gradient(90deg,var(--accent),var(--accent-light));border-radius:0 2px 2px 0;transition:width .6s var(--ease-out-expo);position:relative}
+.progress-fill::after{content:'';position:absolute;top:0;right:0;bottom:0;width:40px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);animation:shimmer 2s ease-in-out infinite}
+@keyframes shimmer{0%{transform:translateX(-60px);opacity:0}50%{opacity:1}100%{transform:translateX(10px);opacity:0}}
+
+/* ── Ambient Background ── */
+.ambient{position:fixed;inset:0;pointer-events:none;z-index:0;transition:background 1.2s ease}
+.dot-grid{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  opacity:.18;
+  background-image:radial-gradient(circle,var(--g300) .5px,transparent .5px);
+  background-size:32px 32px;
+  mask-image:radial-gradient(ellipse at 50% 50%,black 10%,transparent 60%);
+  -webkit-mask-image:radial-gradient(ellipse at 50% 50%,black 10%,transparent 60%);
+}
+
+/* ── Slides Container ── */
+.deck{position:relative;width:100%;height:100vh;overflow:hidden;z-index:1}
+
+.slide{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px 32px 72px;
+  opacity:0;visibility:hidden;
+  transform:translateY(40px);
+  transition:none;
+  pointer-events:none;
+  will-change:transform,opacity;
+  overflow-y:auto;overflow-x:hidden;
+}
+.slide.active{
+  opacity:1;visibility:visible;
+  transform:translateY(0);
+  pointer-events:auto;
+}
+
+/* ── Transition: slide-up (default, 0→1) ── */
+.slide.exit-up{
+  position:absolute;opacity:0;visibility:visible;
+  transform:translateY(-50px) scale(.96);
+  transition:opacity .5s var(--ease-out-expo),transform .5s var(--ease-out-expo),visibility 0s .5s;
+  pointer-events:none;
+}
+.slide.exit-down{
+  position:absolute;opacity:0;visibility:visible;
+  transform:translateY(50px) scale(.96);
+  transition:opacity .5s var(--ease-out-expo),transform .5s var(--ease-out-expo),visibility 0s .5s;
+  pointer-events:none;
+}
+.slide.enter-from-below{
+  opacity:1;visibility:visible;transform:translateY(0);
+  transition:opacity .6s var(--ease-out-expo) .06s,transform .6s var(--ease-out-expo) .06s;
+  pointer-events:auto;
+}
+.slide.enter-from-above{
+  opacity:1;visibility:visible;transform:translateY(0);
+  transition:opacity .6s var(--ease-out-expo) .06s,transform .6s var(--ease-out-expo) .06s;
+  pointer-events:auto;
+}
+
+/* ── Transition: slide-left (1→2) ── */
+.slide.exit-left{
+  position:absolute;opacity:0;visibility:visible;
+  transform:translateX(-70px) scale(.97);
+  transition:opacity .5s var(--ease-out-expo),transform .5s var(--ease-out-expo),visibility 0s .5s;
+  pointer-events:none;
+}
+.slide.exit-right{
+  position:absolute;opacity:0;visibility:visible;
+  transform:translateX(70px) scale(.97);
+  transition:opacity .5s var(--ease-out-expo),transform .5s var(--ease-out-expo),visibility 0s .5s;
+  pointer-events:none;
+}
+.slide.enter-from-right{
+  opacity:1;visibility:visible;transform:translateX(0);
+  transition:opacity .6s var(--ease-out-expo) .06s,transform .6s var(--ease-out-expo) .06s;
+  pointer-events:auto;
+}
+.slide.enter-from-left{
+  opacity:1;visibility:visible;transform:translateX(0);
+  transition:opacity .6s var(--ease-out-expo) .06s,transform .6s var(--ease-out-expo) .06s;
+  pointer-events:auto;
+}
+
+/* ── Transition: reveal (2→3) ── */
+.slide.exit-reveal{
+  position:absolute;opacity:0;visibility:visible;
+  transform:scale(.92);
+  transition:opacity .5s var(--ease-out-expo),transform .5s var(--ease-out-expo),visibility 0s .5s;
+  pointer-events:none;
+}
+.slide.exit-unrevealed{
+  position:absolute;opacity:0;visibility:visible;
+  transform:scale(1.05);
+  transition:opacity .5s var(--ease-out-expo),transform .5s var(--ease-out-expo),visibility 0s .5s;
+  pointer-events:none;
+}
+.slide.enter-reveal{
+  opacity:1;visibility:visible;transform:scale(1);
+  transition:opacity .6s var(--ease-out-expo) .06s,transform .6s var(--ease-out-expo) .06s;
+  pointer-events:auto;
+}
+
+/* ── Keyframes ── */
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes strokeDraw{to{stroke-dashoffset:0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes underlineDraw{to{transform:scaleX(1) rotate(-1.5deg)}}
+@keyframes barGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes slideRowIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes photoPopIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes btnRipple{to{width:200px;height:200px;opacity:0}}
+
+/* ── Split-word text animation ── */
+.s-title .word{
+  display:inline-block;opacity:0;
+  transform:translateY(14px);
+  filter:blur(4px);
+}
+.slide.active .s-title .word,
+.slide.enter-from-below .s-title .word,
+.slide.enter-from-above .s-title .word,
+.slide.enter-from-right .s-title .word,
+.slide.enter-from-left .s-title .word,
+.slide.enter-reveal .s-title .word{
+  animation:wordReveal .5s var(--ease-out-expo) calc(.15s + var(--i) * .07s) forwards;
+}
+@keyframes wordReveal{to{opacity:1;transform:translateY(0);filter:blur(0)}}
+
+/* ── Staggered child reveals ── */
+.anim-target{opacity:0;transform:translateY(16px)}
+.slide.active .s-eyebrow,
+.slide.enter-from-below .s-eyebrow,
+.slide.enter-from-above .s-eyebrow,
+.slide.enter-from-right .s-eyebrow,
+.slide.enter-from-left .s-eyebrow,
+.slide.enter-reveal .s-eyebrow{animation:fadeSlideUp .5s var(--ease-out-expo) .08s both}
+
+.slide.active .s-body,
+.slide.enter-from-below .s-body,
+.slide.enter-from-above .s-body,
+.slide.enter-from-right .s-body,
+.slide.enter-from-left .s-body,
+.slide.enter-reveal .s-body{animation:fadeSlideUp .55s var(--ease-out-expo) .35s both}
+
+.slide.active .s-detail,
+.slide.enter-from-below .s-detail,
+.slide.enter-from-above .s-detail,
+.slide.enter-from-right .s-detail,
+.slide.enter-from-left .s-detail,
+.slide.enter-reveal .s-detail{animation:fadeSlideUp .5s var(--ease-out-expo) .45s both}
+.s-detail{width:100%;display:flex;flex-direction:column;align-items:center}
+
+.slide.active .s-cta,
+.slide.enter-from-below .s-cta,
+.slide.enter-from-above .s-cta,
+.slide.enter-from-right .s-cta,
+.slide.enter-from-left .s-cta,
+.slide.enter-reveal .s-cta{animation:fadeSlideUp .5s var(--ease-out-expo) .52s both}
+
+/* ── Hero SVG (shared) ── */
+.hero-svg{display:block;width:clamp(220px,50vw,380px);height:auto;margin:0 auto 24px;will-change:transform;transition:transform .1s linear}
+
+/* ── SVG Animations: Slide 0 (Logo) ── */
+.hero-svg .draw-path{stroke-dashoffset:var(--dash-len)}
+
+/* ── SVG Animations: Slide 1 (Chart) ── */
+.hero-svg-1 .chart-bar{transform:scaleY(0);transform-box:fill-box;transform-origin:bottom center}
+.slide[data-slide="1"].active .chart-bar,
+.slide[data-slide="1"].enter-from-below .chart-bar,
+.slide[data-slide="1"].enter-from-above .chart-bar{animation:barGrow .6s var(--ease-out-expo) forwards}
+.slide[data-slide="1"].active .bar-1,.slide[data-slide="1"].enter-from-below .bar-1,.slide[data-slide="1"].enter-from-above .bar-1{animation-delay:.25s}
+.slide[data-slide="1"].active .bar-2,.slide[data-slide="1"].enter-from-below .bar-2,.slide[data-slide="1"].enter-from-above .bar-2{animation-delay:.35s}
+.slide[data-slide="1"].active .bar-3,.slide[data-slide="1"].enter-from-below .bar-3,.slide[data-slide="1"].enter-from-above .bar-3{animation-delay:.45s}
+.slide[data-slide="1"].active .bar-4,.slide[data-slide="1"].enter-from-below .bar-4,.slide[data-slide="1"].enter-from-above .bar-4{animation-delay:.55s}
+.slide[data-slide="1"].active .bar-5,.slide[data-slide="1"].enter-from-below .bar-5,.slide[data-slide="1"].enter-from-above .bar-5{animation-delay:.65s}
+.slide[data-slide="1"].active .trend-line,.slide[data-slide="1"].enter-from-below .trend-line,.slide[data-slide="1"].enter-from-above .trend-line{animation:strokeDraw .8s var(--ease-out-expo) .85s forwards}
+.slide[data-slide="1"].active .trend-dot,.slide[data-slide="1"].enter-from-below .trend-dot,.slide[data-slide="1"].enter-from-above .trend-dot{animation:fadeIn .3s ease 1.5s forwards,pulse 2s ease-in-out 1.8s infinite}
+.slide[data-slide="1"].active .chart-label,.slide[data-slide="1"].enter-from-below .chart-label,.slide[data-slide="1"].enter-from-above .chart-label{animation:fadeSlideUp .4s var(--ease-out-expo) 1.6s forwards}
+.hero-svg-1 .grid-line{opacity:0}
+.slide[data-slide="1"].active .grid-line,.slide[data-slide="1"].enter-from-below .grid-line,.slide[data-slide="1"].enter-from-above .grid-line{animation:fadeIn .4s ease .15s forwards}
+
+/* ── (Audit card animations moved to HTML/CSS section above) ── */
+
+/* ── (Camera lens SVG removed — using real photos) ── */
+
+/* ── Audit Card (Slide 2) ── */
+.audit-card-wrap{margin:0 auto 24px;max-width:340px}
+.audit-card{
+  background:#fff;border:1.5px solid var(--g200);border-radius:var(--radius);
+  overflow:hidden;box-shadow:var(--sh);
+  opacity:0;transform:translateY(16px) scale(.97);
+}
+.slide[data-slide="2"].active .audit-card,
+.slide[data-slide="2"].enter-from-right .audit-card,
+.slide[data-slide="2"].enter-from-left .audit-card{
+  animation:auditCardIn .6s var(--ease-out-expo) .15s forwards;
+}
+@keyframes auditCardIn{to{opacity:1;transform:translateY(0) scale(1)}}
+.audit-card-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;background:var(--g50);border-bottom:1px solid var(--g200);
+}
+.audit-card-title{font-size:13px;font-weight:600;color:var(--g700)}
+.audit-card-score{
+  font-family:var(--mono);font-size:14px;font-weight:500;color:var(--accent);
+  background:var(--accent-light);padding:3px 10px;border-radius:10px;
+}
+.audit-card-body{padding:6px 0}
+.audit-row-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 18px;border-bottom:1px solid var(--g100);
+  opacity:0;transform:translateX(-16px);
+}
+.audit-row-item:last-child{border-bottom:none}
+.slide[data-slide="2"].active .audit-row-item,
+.slide[data-slide="2"].enter-from-right .audit-row-item,
+.slide[data-slide="2"].enter-from-left .audit-row-item{
+  animation:auditRowSlide .45s var(--ease-out-expo) forwards;
+}
+.slide[data-slide="2"].active .row-1,.slide[data-slide="2"].enter-from-right .row-1,.slide[data-slide="2"].enter-from-left .row-1{animation-delay:.5s}
+.slide[data-slide="2"].active .row-2,.slide[data-slide="2"].enter-from-right .row-2,.slide[data-slide="2"].enter-from-left .row-2{animation-delay:.62s}
+.slide[data-slide="2"].active .row-3,.slide[data-slide="2"].enter-from-right .row-3,.slide[data-slide="2"].enter-from-left .row-3{animation-delay:.74s}
+.slide[data-slide="2"].active .row-4,.slide[data-slide="2"].enter-from-right .row-4,.slide[data-slide="2"].enter-from-left .row-4{animation-delay:.86s}
+.slide[data-slide="2"].active .row-5,.slide[data-slide="2"].enter-from-right .row-5,.slide[data-slide="2"].enter-from-left .row-5{animation-delay:.98s}
+@keyframes auditRowSlide{to{opacity:1;transform:translateX(0)}}
+.audit-check{
+  width:22px;height:22px;border-radius:50%;flex-shrink:0;
+  background:var(--accent-light);border:1.5px solid var(--accent-border);
+  display:flex;align-items:center;justify-content:center;
+}
+.audit-row-label{font-size:13px;color:var(--g500);flex:1}
+.audit-row-badge{
+  font-family:var(--mono);font-size:10px;font-weight:500;color:var(--accent);
+  background:var(--accent-light);padding:2px 8px;border-radius:8px;
+}
+
+/* ── Hero Logo ── */
+.hero-logo-wrap{
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 28px;
+  animation:logoFloat 4s ease-in-out infinite;
+}
+.hero-logo-svg{
+  filter:drop-shadow(0 4px 12px rgba(50,48,47,.08));
+  transition:transform .3s ease;
+}
+.hero-logo-svg .logo-bubble{
+  stroke-dasharray:200;stroke-dashoffset:200;
+  animation:logoBubbleDraw .9s var(--ease-out-expo) .1s forwards;
+}
+.hero-logo-svg .logo-wave{
+  stroke-dasharray:60;stroke-dashoffset:60;
+  animation:logoWaveDraw .8s var(--ease-out-expo) .6s forwards;
+}
+@keyframes logoBubbleDraw{to{stroke-dashoffset:0}}
+@keyframes logoWaveDraw{to{stroke-dashoffset:0}}
+@keyframes logoFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
+}
+
+/* ── Slide Inner ── */
+.slide-inner{max-width:640px;width:100%;text-align:center;position:relative;z-index:2;margin:auto}
+
+/* ── Typography ── */
+.s-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:16px;
+}
+.s-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+
+.s-title{
+  font-family:var(--heading);font-size:clamp(44px,8vw,80px);font-weight:400;
+  letter-spacing:-.025em;line-height:1.06;color:var(--black);margin-bottom:20px;
+}
+.s-title em{font-style:italic;color:var(--accent);position:relative;white-space:nowrap}
+.s-title em::after{
+  content:'';position:absolute;bottom:-3px;left:-2%;width:104%;height:2px;
+  background:var(--accent);border-radius:2px;
+  transform:scaleX(0) rotate(-1.5deg);transform-origin:left;
+}
+.slide.active .s-title em::after,
+.slide.enter-from-below .s-title em::after,
+.slide.enter-from-above .s-title em::after,
+.slide.enter-from-right .s-title em::after,
+.slide.enter-from-left .s-title em::after,
+.slide.enter-reveal .s-title em::after{
+  animation:underlineDraw .6s var(--ease-out-expo) .6s forwards;
+}
+
+.s-body{font-size:15px;color:var(--g500);line-height:1.75;font-weight:300;max-width:500px;margin:0 auto 24px;text-align:center}
+
+/* ── Detail Cards ── */
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:left;margin-bottom:24px;width:100%;max-width:480px;margin-left:auto;margin-right:auto}
+.detail-card{
+  background:var(--g50);border:1.5px solid var(--g200);border-radius:var(--radius);
+  padding:16px;transition:border-color .2s,box-shadow .2s,transform .1s linear;
+  will-change:transform;
+}
+.detail-card:hover{border-color:var(--g300);box-shadow:var(--sh-sm)}
+.detail-card .dc-icon{
+  width:28px;height:28px;border-radius:6px;background:var(--accent-light);
+  display:flex;align-items:center;justify-content:center;margin-bottom:8px;
+}
+.detail-card .dc-icon svg{color:var(--accent);width:14px;height:14px}
+.detail-card .dc-title{font-size:13px;font-weight:600;color:var(--black);margin-bottom:3px}
+.detail-card .dc-desc{font-size:12px;color:var(--g500);line-height:1.5;font-weight:300}
+
+/* ── Metric Row ── */
+.metric-row{display:flex;justify-content:center;gap:28px;margin-bottom:24px}
+.metric{text-align:center}
+.metric-val{font-family:var(--mono);font-size:clamp(24px,5vw,32px);font-weight:500;color:var(--accent);line-height:1;margin-bottom:4px}
+.metric-label{font-size:11px;color:var(--g400);font-weight:400;text-transform:uppercase;letter-spacing:.06em}
+
+/* ── Feature List ── */
+.feature-list{text-align:left;max-width:420px;margin:0 auto 24px;width:100%}
+.feature-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--g200);transition:transform .1s linear;will-change:transform}
+.feature-item:last-child{border-bottom:none}
+.feature-check{
+  width:18px;height:18px;border-radius:50%;flex-shrink:0;margin-top:2px;
+  background:var(--accent-light);display:flex;align-items:center;justify-content:center;
+}
+.feature-check svg{color:var(--accent);width:10px;height:10px}
+.feature-text{font-size:13px;color:var(--g500);line-height:1.6}
+.feature-text strong{color:var(--black);font-weight:600}
+
+/* ── Before/After ── */
+.before-after{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;text-align:left}
+.ba-card{background:var(--g50);border:1.5px solid var(--g200);border-radius:var(--radius);padding:14px;transition:transform .1s linear;will-change:transform}
+.ba-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.ba-label.before{color:var(--g400)}
+.ba-label.after{color:var(--accent)}
+.ba-list{list-style:none;padding:0}
+.ba-list li{font-size:12px;color:var(--g500);padding:3px 0;line-height:1.5;display:flex;align-items:center;gap:5px}
+.ba-list li::before{content:'';width:4px;height:4px;border-radius:50%;flex-shrink:0}
+.ba-card:first-child .ba-list li::before{background:var(--g400)}
+.ba-card:last-child .ba-list li::before{background:var(--accent)}
+
+/* ── Photo Compare (Slide 3) ── */
+.photo-compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;width:100%}
+.photo-compare-card{border-radius:var(--radius);overflow:hidden;border:1.5px solid var(--g200);background:#fff}
+.photo-compare-card.after{border-color:var(--accent-border)}
+.photo-compare-label{
+  font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  padding:10px 14px;text-align:center;
+}
+.photo-compare-label.before{color:var(--g400);background:var(--g50)}
+.photo-compare-label.after{color:var(--accent);background:rgba(74,103,65,.06)}
+.photo-img-wrap{overflow:hidden;height:220px}
+.photo-compare-img{
+  display:block;width:100%;height:100%;
+  object-fit:cover;object-position:center;
+  transition:transform .3s ease;
+}
+.photo-compare-card:hover .photo-compare-img{transform:scale(1.03)}
+@media(max-width:640px){
+  .photo-compare{grid-template-columns:1fr}
+  .photo-img-wrap{height:180px}
+}
+
+/* ── Team Bubbles ── */
+.team-bubbles{
+  position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1;
+}
+.team-bubble{
+  position:absolute;border-radius:50%;overflow:hidden;
+  border:2.5px solid var(--g200);
+  box-shadow:0 4px 20px rgba(50,48,47,.1);
+  opacity:0;transition:opacity .8s ease;
+  will-change:transform;
+}
+.slide.active .team-bubble,
+.slide.enter-from-below .team-bubble,
+.slide.enter-from-above .team-bubble,
+.slide.enter-reveal .team-bubble{
+  opacity:0.9;
+}
+.team-bubble img{
+  width:100%;height:100%;object-fit:cover;display:block;
+}
+
+/* ── CTA Section ── */
+.cta-block{border-top:1px solid var(--g200);padding-top:20px;margin-top:8px}
+.cta-headline{font-family:var(--heading);font-size:clamp(18px,4vw,22px);font-weight:400;color:var(--black);margin-bottom:6px;letter-spacing:-.01em}
+.cta-desc{font-size:14px;color:var(--g500);line-height:1.7;font-weight:300;max-width:380px;margin:0 auto 20px}
+.cta-trust{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:16px;flex-wrap:wrap}
+.cta-trust-item{font-size:11px;color:var(--g400);display:flex;align-items:center;gap:4px}
+.cta-trust-item svg{color:var(--accent);width:13px;height:13px}
+
+/* ── Navigation ── */
+.nav-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  padding:14px 24px;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-top:1px solid var(--g200);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.nav-left{display:flex;align-items:center;gap:12px}
+.nav-logo{display:flex;align-items:center;gap:6px;font-family:var(--heading);font-size:16px;font-weight:600;letter-spacing:-.02em;color:var(--black);text-decoration:none}
+.nav-logo em{font-style:italic;color:var(--accent)}
+.nav-logo-icon{flex-shrink:0}
+
+/* Progress dots with connecting lines */
+.progress{display:flex;align-items:center;gap:0}
+.progress-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--g200);
+  transition:background .3s var(--ease-out-expo),transform .3s var(--ease-out-expo);
+  flex-shrink:0;
+}
+.progress-dot.active{background:var(--accent);transform:scale(1.3)}
+.progress-dot.done{background:var(--accent);opacity:.5}
+.progress-line{width:16px;height:2px;background:var(--g200);transition:background .3s var(--ease-out-expo)}
+.progress-line.done{background:var(--accent);opacity:.5}
+
+.nav-actions{display:flex;gap:8px}
+
+.btn-back,.btn-next,.btn-book{position:relative;overflow:hidden}
+.btn-ripple{
+  position:absolute;border-radius:50%;
+  background:rgba(255,255,255,.3);
+  width:0;height:0;transform:translate(-50%,-50%);
+  animation:btnRipple .5s var(--ease-out-expo) forwards;
+  pointer-events:none;
+}
+.btn-back{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:10px 18px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:400;color:var(--black);
+  background:transparent;border:1.5px solid var(--g200);
+  cursor:pointer;font-family:var(--body);
+  transition:border-color .15s,box-shadow .15s;
+}
+.btn-back:hover{border-color:var(--g300);box-shadow:var(--sh-sm)}
+.btn-back:disabled{opacity:.3;pointer-events:none}
+.btn-back .btn-ripple{background:rgba(50,48,47,.1)}
+
+.btn-next{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:10px 20px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:500;color:#fff;
+  background:var(--black);border:none;
+  cursor:pointer;font-family:var(--body);
+  transition:opacity .15s,transform .15s;
+}
+.btn-next:hover{opacity:.85;transform:translateY(-1px)}
+
+.btn-book{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 22px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:500;color:#fff;
+  background:var(--accent);border:none;
+  cursor:pointer;font-family:var(--body);
+  transition:transform .2s,box-shadow .2s;
+  box-shadow:0 4px 16px rgba(74,103,65,.25);
+  text-decoration:none;
+}
+.btn-book:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(74,103,65,.3)}
+.btn-book svg{transition:transform .2s}
+.btn-book:hover svg{transform:translateX(3px)}
+
+/* ── Responsive ── */
+@media(max-width:640px){
+  .slide{padding:16px 20px 90px}
+  .detail-grid{grid-template-columns:1fr;gap:8px}
+  .metric-row{gap:16px}
+  .before-after{grid-template-columns:1fr}
+  .nav-bar{padding:12px 16px}
+  .nav-logo{display:none}
+  .hero-svg{width:clamp(180px,65vw,280px)}
+  .team-bubble{border-width:2px}
+}
+@media(max-width:400px){
+  .metric-row{flex-direction:column;gap:12px}
+}
+
+/* ── Reduced Motion ── */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+  }
+  #bg-canvas{display:none}
+  .s-title .word{opacity:1;transform:none;filter:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Intro Overlay -->
+<div class="intro-overlay" id="intro-overlay">
+  <canvas id="intro-canvas"></canvas>
+  <div class="intro-logo" id="intro-logo">
+    <svg viewBox="0 0 48 48" width="120" height="120" fill="none">
+      <path d="M6 20C6 12 12 6 22 6H26C36 6 42 12 42 20C42 28 36 34 26 34H20L12 40V34C8.5 32 6 27 6 20Z" stroke="#32302F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <path d="M15 21C15 21 17 14 19.5 14C22 14 22 28 24.5 28C27 28 27 16 29 16C31 16 32 22 33 22" stroke="#32302F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+</div>
+
+<!-- Canvas particle background -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- Progress bar -->
+<div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+<!-- Ambient layers -->
+<div class="ambient" id="ambient"></div>
+<div class="dot-grid"></div>
+
+<!-- Slide Deck -->
+<div class="deck">
+
+  <!-- ═══════════ SLIDE 0: Welcome ═══════════ -->
+  <div class="slide active" data-slide="0">
+    <div class="slide-inner">
+
+      <!-- Hero Logo: RevWhisper -->
+      <div class="hero-logo-wrap" id="hero-logo">
+        <svg class="hero-logo-svg" viewBox="0 0 48 48" width="80" height="80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path class="logo-bubble" d="M6 20C6 12 12 6 22 6H26C36 6 42 12 42 20C42 28 36 34 26 34H20L12 40V34C8.5 32 6 27 6 20Z" stroke="#32302F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <path class="logo-wave" d="M15 21C15 21 17 14 19.5 14C22 14 22 28 24.5 28C27 28 27 16 29 16C31 16 32 22 33 22" stroke="#32302F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <div class="s-eyebrow"><span class="dot"></span> Poconos STR Conference 2026</div>
+      <h1 class="s-title">Your listings deserve smarter <em>revenue.</em></h1>
+      <p class="s-body">RevWhisper combines proprietary algorithms with a dedicated tech team to optimize every listing, every night, every market. We turn data into dollars while you focus on your guests.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ SLIDE 1: Revenue Management ═══════════ -->
+  <div class="slide" data-slide="1">
+    <div class="slide-inner">
+
+      <!-- Hero SVG: Bar Chart -->
+      <svg class="hero-svg hero-svg-1" viewBox="0 0 400 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Grid lines -->
+        <line class="grid-line" x1="60" y1="40" x2="350" y2="40" stroke="#E0DCDA" stroke-width=".5" stroke-dasharray="4 4"/>
+        <line class="grid-line" x1="60" y1="90" x2="350" y2="90" stroke="#E0DCDA" stroke-width=".5" stroke-dasharray="4 4"/>
+        <line class="grid-line" x1="60" y1="140" x2="350" y2="140" stroke="#E0DCDA" stroke-width=".5" stroke-dasharray="4 4"/>
+        <line class="grid-line" x1="60" y1="190" x2="350" y2="190" stroke="#E0DCDA" stroke-width=".5" stroke-dasharray="4 4"/>
+        <!-- Baseline -->
+        <line x1="60" y1="210" x2="350" y2="210" stroke="#E0DCDA" stroke-width="1"/>
+        <!-- Bars -->
+        <rect class="chart-bar bar-1" x="80" y="170" width="36" height="40" rx="4" fill="#E0DCDA"/>
+        <rect class="chart-bar bar-2" x="136" y="145" width="36" height="65" rx="4" fill="#ccc8c5"/>
+        <rect class="chart-bar bar-3" x="192" y="110" width="36" height="100" rx="4" fill="#4A6741" opacity=".35"/>
+        <rect class="chart-bar bar-4" x="248" y="75" width="36" height="135" rx="4" fill="#4A6741" opacity=".6"/>
+        <rect class="chart-bar bar-5" x="304" y="40" width="36" height="170" rx="4" fill="#4A6741"/>
+        <!-- Trend line -->
+        <path class="draw-path trend-line" style="--dash-len:350"
+              d="M98 170 L154 145 L210 110 L266 75 L322 40"
+              stroke="#32302F" stroke-width="2" stroke-linecap="round" fill="none"
+              stroke-dasharray="350" stroke-dashoffset="350"/>
+        <!-- Endpoint dot -->
+        <circle class="trend-dot" cx="322" cy="40" r="5" fill="#4A6741" opacity="0"/>
+        <!-- Floating label -->
+        <text class="chart-label" x="340" y="32" font-family="'DM Mono',monospace" font-size="13" font-weight="500" fill="#4A6741" opacity="0">+23%</text>
+        <!-- Axis labels -->
+        <text font-family="'DM Mono',monospace" font-size="9" fill="#a39e9b" text-anchor="end" x="55" y="194">$0</text>
+        <text font-family="'DM Mono',monospace" font-size="9" fill="#a39e9b" text-anchor="end" x="55" y="44">$500</text>
+        <!-- Month labels -->
+        <text font-family="'DM Sans',sans-serif" font-size="9" fill="#a39e9b" text-anchor="middle" x="98" y="226">Jan</text>
+        <text font-family="'DM Sans',sans-serif" font-size="9" fill="#a39e9b" text-anchor="middle" x="154" y="226">Feb</text>
+        <text font-family="'DM Sans',sans-serif" font-size="9" fill="#a39e9b" text-anchor="middle" x="210" y="226">Mar</text>
+        <text font-family="'DM Sans',sans-serif" font-size="9" fill="#a39e9b" text-anchor="middle" x="266" y="226">Apr</text>
+        <text font-family="'DM Sans',sans-serif" font-size="9" fill="#a39e9b" text-anchor="middle" x="322" y="226">May</text>
+      </svg>
+
+      <div class="s-eyebrow"><span class="dot"></span> Dynamic Pricing</div>
+      <h1 class="s-title">Pricing powered by <em>Gap Night Detection.</em></h1>
+      <p class="s-body">We built proprietary Gap Night Detection technology that identifies every orphan night in your calendar — then actively prices it to convert. No set-it-and-forget-it tools. A dedicated team adjusting your rates daily.</p>
+      <div class="s-detail">
+        <div class="metric-row">
+          <div class="metric">
+            <div class="metric-val" data-count-to="23" data-count-suffix="%">0%</div>
+            <div class="metric-label">Avg Revenue Lift</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val" data-count-to="365">0</div>
+            <div class="metric-label">Nights Monitored / Year</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val">Daily</div>
+            <div class="metric-label">Ranking Analysis</div>
+          </div>
+        </div>
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="feature-check"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div class="feature-text"><strong>Gap Night Detection</strong> — proprietary tech we developed to spot orphan nights between bookings and price them to fill, not sit empty.</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-check"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div class="feature-text"><strong>Daily ranking monitoring</strong> — we track your search position across data points nationwide and adjust pricing so you move up, not down.</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-check"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div class="feature-text"><strong>Competitor price intelligence</strong> — we monitor every competitor's pricing. When they book up, we raise your rates because demand just shifted to you.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SLIDE 2: Listing Optimization ═══════════ -->
+  <div class="slide" data-slide="2">
+    <div class="slide-inner">
+
+      <!-- Hero: Audit Card (HTML/CSS based) -->
+      <div class="audit-card-wrap">
+        <div class="audit-card">
+          <div class="audit-card-header">
+            <span class="audit-card-title">Listing Audit</span>
+            <span class="audit-card-score">94<span style="font-size:11px;opacity:.6">/100</span></span>
+          </div>
+          <div class="audit-card-body">
+            <div class="audit-row-item row-1">
+              <div class="audit-check"><svg width="12" height="12" fill="none" stroke="#4A6741" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg></div>
+              <span class="audit-row-label">Title optimization</span>
+              <span class="audit-row-badge">Done</span>
+            </div>
+            <div class="audit-row-item row-2">
+              <div class="audit-check"><svg width="12" height="12" fill="none" stroke="#4A6741" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg></div>
+              <span class="audit-row-label">Description rewrite</span>
+              <span class="audit-row-badge">Done</span>
+            </div>
+            <div class="audit-row-item row-3">
+              <div class="audit-check"><svg width="12" height="12" fill="none" stroke="#4A6741" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg></div>
+              <span class="audit-row-label">Amenity audit</span>
+              <span class="audit-row-badge">Done</span>
+            </div>
+            <div class="audit-row-item row-4">
+              <div class="audit-check"><svg width="12" height="12" fill="none" stroke="#4A6741" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg></div>
+              <span class="audit-row-label">SEO keywords</span>
+              <span class="audit-row-badge">Done</span>
+            </div>
+            <div class="audit-row-item row-5">
+              <div class="audit-check"><svg width="12" height="12" fill="none" stroke="#4A6741" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg></div>
+              <span class="audit-row-label">Photo scoring</span>
+              <span class="audit-row-badge">Done</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="s-eyebrow"><span class="dot"></span> Listing Optimization</div>
+      <h1 class="s-title">Every field tuned for the <em>algorithm.</em></h1>
+      <p class="s-body">Our AI agents scan your entire listing — title, description, amenities, tags, house rules — and surface exactly what's costing you ranking position. Then we fix it.</p>
+      <div class="s-detail">
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="feature-check"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div class="feature-text"><strong>Full-field audit</strong> — title, description, amenities, highlights, tags, house rules, and every configurable field Airbnb offers.</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-check"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div class="feature-text"><strong>AI-powered scanning</strong> — our agents compare your listing against top performers in your market and identify specific gaps.</div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-check"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div class="feature-text"><strong>Continuous monitoring</strong> — Airbnb changes its algorithm. We re-audit regularly so your listing stays ahead.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SLIDE 3: Photo Optimization ═══════════ -->
+  <div class="slide" data-slide="3">
+    <div class="slide-inner" style="max-width:700px">
+
+      <div class="s-eyebrow"><span class="dot"></span> Photo Optimization</div>
+      <h1 class="s-title">Photos that rank. Not just photos that <em>look good.</em></h1>
+      <p class="s-body">Airbnb's algorithm evaluates your photos for brightness, composition, and quality. We use AI to edit every image so it performs for search.</p>
+      <div class="s-detail">
+        <div class="photo-compare">
+          <!-- Before photo -->
+          <div class="photo-compare-card before">
+            <div class="photo-compare-label before">Before</div>
+            <div class="photo-img-wrap">
+              <img src="livingroom-before.jpg" alt="Living room before AI enhancement" class="photo-compare-img">
+            </div>
+          </div>
+          <!-- After photo -->
+          <div class="photo-compare-card after">
+            <div class="photo-compare-label after">After AI Enhancement</div>
+            <div class="photo-img-wrap">
+              <img src="livingrooom-after.jpeg" alt="Living room after AI enhancement" class="photo-compare-img">
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════ SLIDE 4: Call to Action ═══════════ -->
+  <div class="slide" data-slide="4">
+    <!-- Floating team photo bubbles -->
+    <div class="team-bubbles" id="teamBubbles"></div>
+    <div class="slide-inner" style="max-width:480px;position:relative;z-index:2">
+      <div class="s-eyebrow"><span class="dot"></span> Let's Talk</div>
+      <h1 class="s-title">Ready to see what we'd do with <em>your listing?</em></h1>
+      <p class="s-body">Book a 20-minute discovery call. We'll pull your listing data and walk you through exactly where you're leaving revenue behind.</p>
+
+      <div class="s-cta" style="text-align:center">
+        <a href="https://cal.com/rev-whisper/discovery" class="btn-book" target="_blank" rel="noopener">
+          Book a discovery call
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        </a>
+        <div class="cta-trust">
+          <div class="cta-trust-item">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Revenue-backed guarantee
+          </div>
+          <div class="cta-trust-item">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            20 min, no commitment
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Bottom Navigation -->
+<nav class="nav-bar">
+  <div class="nav-left">
+    <a href="/" class="nav-logo">
+      <svg class="nav-logo-icon" viewBox="0 0 48 48" width="24" height="24" fill="none"><path d="M6 20C6 12 12 6 22 6H26C36 6 42 12 42 20C42 28 36 34 26 34H20L12 40V34C8.5 32 6 27 6 20Z" stroke="#32302F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 21C15 21 17 14 19.5 14C22 14 22 28 24.5 28C27 28 27 16 29 16C31 16 32 22 33 22" stroke="#32302F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Rev<em>Whisper</em>
+    </a>
+    <div class="progress">
+      <div class="progress-dot active" data-dot="0"></div>
+      <div class="progress-line" data-line="0"></div>
+      <div class="progress-dot" data-dot="1"></div>
+      <div class="progress-line" data-line="1"></div>
+      <div class="progress-dot" data-dot="2"></div>
+      <div class="progress-line" data-line="2"></div>
+      <div class="progress-dot" data-dot="3"></div>
+      <div class="progress-line" data-line="3"></div>
+      <div class="progress-dot" data-dot="4"></div>
+    </div>
+  </div>
+  <div class="nav-actions">
+    <button class="btn-back" id="btn-back" disabled>
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 7H3M7 3L3 7l4 4"/></svg>
+      Back
+    </button>
+    <button class="btn-next" id="btn-next">
+      Next
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg>
+    </button>
+  </div>
+</nav>
+
+<script>
+// ═══════════════════════════════════════════════
+// 0. INTRO: PARTICLE CONVERGENCE ANIMATION
+// ═══════════════════════════════════════════════
+(function() {
+  const overlay = document.getElementById('intro-overlay');
+  const canvas = document.getElementById('intro-canvas');
+  const ctx = canvas.getContext('2d');
+  const logoEl = document.getElementById('intro-logo');
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  let W = window.innerWidth, H = window.innerHeight;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const COUNT = 80;
+  const cx = W / 2, cy = H / 2;
+  const particles = [];
+
+  // Logo target points (sampled from the speech bubble shape)
+  const logoPoints = [];
+  const logoScale = 2.8;
+  const logoOx = cx - 24 * logoScale, logoOy = cy - 22 * logoScale;
+  // Sample points along the speech bubble path
+  const bubblePts = [
+    [6,20],[8,14],[12,9],[16,7],[20,6],[24,6],[28,7],[32,9],[36,12],[40,16],[42,20],
+    [42,24],[40,28],[36,32],[30,34],[26,34],[20,34],[16,36],[12,40],[14,34],[10,30],[8,26],[6,24]
+  ];
+  // Wave points
+  const wavePts = [[15,21],[17,14],[19.5,14],[22,28],[24.5,28],[27,16],[29,16],[31,16],[32,22],[33,22]];
+  bubblePts.forEach(p => logoPoints.push({ x: logoOx + p[0] * logoScale, y: logoOy + p[1] * logoScale }));
+  wavePts.forEach(p => logoPoints.push({ x: logoOx + p[0] * logoScale, y: logoOy + p[1] * logoScale }));
+
+  for (let i = 0; i < COUNT; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 300 + Math.random() * 400;
+    const target = logoPoints[i % logoPoints.length];
+    particles.push({
+      x: cx + Math.cos(angle) * dist,
+      y: cy + Math.sin(angle) * dist,
+      tx: target.x + (Math.random() - .5) * 8,
+      ty: target.y + (Math.random() - .5) * 8,
+      size: 1.5 + Math.random() * 3,
+      opacity: .15 + Math.random() * .45,
+      shape: Math.random() > .6 ? 'diamond' : 'circle',
+      vx: 0, vy: 0,
+      burstVx: (Math.random() - .5) * 12,
+      burstVy: (Math.random() - .5) * 12,
+    });
+  }
+
+  let phase = 'converge'; // converge -> hold -> burst -> done
+  let startTime = performance.now();
+  const CONVERGE_DUR = 1200;
+  const HOLD_DUR = 600;
+  const BURST_DUR = 500;
+
+  function easeOutExpo(t) { return t === 1 ? 1 : 1 - Math.pow(2, -10 * t); }
+
+  function draw(now) {
+    const elapsed = now - startTime;
+    ctx.clearRect(0, 0, W, H);
+
+    if (phase === 'converge') {
+      const t = Math.min(elapsed / CONVERGE_DUR, 1);
+      const e = easeOutExpo(t);
+      particles.forEach(p => {
+        p.x = p.x + (p.tx - p.x) * (.04 + e * .08);
+        p.y = p.y + (p.ty - p.y) * (.04 + e * .08);
+      });
+      // Show logo when particles are mostly converged
+      if (t > .65 && !logoEl.classList.contains('visible')) {
+        logoEl.classList.add('visible');
+      }
+      if (t >= 1) { phase = 'hold'; startTime = now; }
+    } else if (phase === 'hold') {
+      if (elapsed >= HOLD_DUR) {
+        phase = 'burst';
+        startTime = now;
+        logoEl.classList.add('burst');
+      }
+    } else if (phase === 'burst') {
+      const t = Math.min(elapsed / BURST_DUR, 1);
+      particles.forEach(p => {
+        p.x += p.burstVx * (1 - t);
+        p.y += p.burstVy * (1 - t);
+        p.opacity *= .96;
+      });
+      if (t >= 1) {
+        phase = 'done';
+        overlay.classList.add('fade-out');
+        document.querySelector('.deck').classList.add('revealed');
+        document.querySelector('.nav-bar').classList.add('revealed');
+        document.querySelector('.progress-bar').classList.add('revealed');
+        setTimeout(() => overlay.classList.add('hidden'), 700);
+        return;
+      }
+    }
+
+    // Draw particles
+    particles.forEach(p => {
+      ctx.globalAlpha = p.opacity;
+      ctx.fillStyle = 'rgb(74,103,65)';
+      if (p.shape === 'diamond') {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(Math.PI / 4);
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        ctx.restore();
+      } else {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    });
+
+    // Draw connection lines during convergence
+    if (phase === 'converge' || phase === 'hold') {
+      ctx.strokeStyle = 'rgb(74,103,65)';
+      ctx.lineWidth = .5;
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < Math.min(i + 6, particles.length); j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const d = Math.sqrt(dx * dx + dy * dy);
+          if (d < 60) {
+            ctx.globalAlpha = .08 * (1 - d / 60);
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+
+// ═══════════════════════════════════════════════
+// 1. CANVAS PARTICLE SYSTEM
+// ═══════════════════════════════════════════════
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  let W, H;
+  const isMobile = window.innerWidth < 640;
+  const PARTICLE_COUNT = isMobile ? 18 : 35;
+  let currentSlide = 0;
+
+  const slideConfigs = [
+    { color: [74,103,65], baseOpacity: .04, drift: { x: 0, y: -0.15 }, connect: true },
+    { color: [74,103,65], baseOpacity: .05, drift: { x: 0, y: -0.25 }, connect: false },
+    { color: [50,48,47],  baseOpacity: .03, drift: { x: 0.1, y: -0.1 }, connect: false },
+    { color: [74,103,65], baseOpacity: .045, drift: { x: 0, y: 0 },    connect: false },
+    { color: [74,103,65], baseOpacity: .06,  drift: { x: 0, y: -0.1 }, connect: true },
+  ];
+  let targetConfig = slideConfigs[0];
+  let lerpedConfig = { ...slideConfigs[0], color: [...slideConfigs[0].color] };
+
+  function resize() {
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const particles = [];
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      size: 1.5 + Math.random() * 3,
+      vx: (-0.3 + Math.random() * 0.6) * 0.5,
+      vy: (-0.3 + Math.random() * 0.6) * 0.5,
+      opacity: 0.3 + Math.random() * 0.7,
+      shape: Math.random() > 0.6 ? 'diamond' : 'circle',
+    });
+  }
+
+  let lastFrame = 0;
+  const FPS_INTERVAL = 1000 / (isMobile ? 24 : 30);
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  function animate(now) {
+    requestAnimationFrame(animate);
+    const delta = now - lastFrame;
+    if (delta < FPS_INTERVAL) return;
+    lastFrame = now - (delta % FPS_INTERVAL);
+
+    // Lerp config
+    const t = 0.02;
+    lerpedConfig.baseOpacity = lerp(lerpedConfig.baseOpacity, targetConfig.baseOpacity, t);
+    lerpedConfig.color[0] = lerp(lerpedConfig.color[0], targetConfig.color[0], t);
+    lerpedConfig.color[1] = lerp(lerpedConfig.color[1], targetConfig.color[1], t);
+    lerpedConfig.color[2] = lerp(lerpedConfig.color[2], targetConfig.color[2], t);
+
+    ctx.clearRect(0, 0, W, H);
+    const r = Math.round(lerpedConfig.color[0]);
+    const g = Math.round(lerpedConfig.color[1]);
+    const b = Math.round(lerpedConfig.color[2]);
+
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      p.x += p.vx + targetConfig.drift.x;
+      p.y += p.vy + targetConfig.drift.y;
+      if (p.x < -10) p.x = W + 10;
+      if (p.x > W + 10) p.x = -10;
+      if (p.y < -10) p.y = H + 10;
+      if (p.y > H + 10) p.y = -10;
+
+      const alpha = lerpedConfig.baseOpacity * p.opacity;
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = `rgb(${r},${g},${b})`;
+
+      if (p.shape === 'diamond') {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(Math.PI / 4);
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        ctx.restore();
+      } else {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Connection lines (slide 0 only)
+    if (targetConfig.connect) {
+      ctx.strokeStyle = `rgb(${r},${g},${b})`;
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            ctx.globalAlpha = lerpedConfig.baseOpacity * 0.3 * (1 - dist / 120);
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    ctx.globalAlpha = 1;
+  }
+  requestAnimationFrame(animate);
+
+  // Expose slide change hook
+  window._setParticleSlide = function(idx) {
+    targetConfig = slideConfigs[idx] || slideConfigs[0];
+  };
+})();
+
+// ═══════════════════════════════════════════════
+// 2. SPLIT-WORD TEXT ANIMATION
+// ═══════════════════════════════════════════════
+(function() {
+  document.querySelectorAll('.s-title').forEach(el => {
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+    let wordIdx = 0;
+    textNodes.forEach(node => {
+      const parts = node.textContent.split(/(\s+)/);
+      const frag = document.createDocumentFragment();
+      parts.forEach(part => {
+        if (part.trim() === '') {
+          frag.appendChild(document.createTextNode(part));
+        } else {
+          const span = document.createElement('span');
+          span.className = 'word';
+          span.style.setProperty('--i', wordIdx++);
+          span.textContent = part;
+          frag.appendChild(span);
+        }
+      });
+      node.parentNode.replaceChild(frag, node);
+    });
+  });
+})();
+
+// ═══════════════════════════════════════════════
+// 3. SLIDE TRANSITION SYSTEM
+// ═══════════════════════════════════════════════
+let current = 0;
+const totalSlides = 5;
+let isTransitioning = false;
+
+const btnBack = document.getElementById('btn-back');
+const btnNext = document.getElementById('btn-next');
+
+// Transition types per slide boundary
+// 0→1: slide-up, 1→2: slide-left, 2→3: reveal
+const transitionTypes = ['slide-up', 'slide-left', 'reveal', 'slide-up'];
+
+const exitClasses = {
+  'slide-up':   { forward: 'exit-up',      backward: 'exit-down' },
+  'slide-left': { forward: 'exit-left',     backward: 'exit-right' },
+  'reveal':     { forward: 'exit-reveal',   backward: 'exit-unrevealed' },
+};
+const enterClasses = {
+  'slide-up':   { forward: 'enter-from-below', backward: 'enter-from-above' },
+  'slide-left': { forward: 'enter-from-right',  backward: 'enter-from-left' },
+  'reveal':     { forward: 'enter-reveal',       backward: 'enter-reveal' },
+};
+const enterStartTransform = {
+  'slide-up':   { forward: 'translateY(40px)',  backward: 'translateY(-40px)' },
+  'slide-left': { forward: 'translateX(70px)',  backward: 'translateX(-70px)' },
+  'reveal':     { forward: 'scale(.88)',        backward: 'scale(1.08)' },
+};
+
+// Ambient gradient configs
+const ambientConfigs = [
+  'radial-gradient(ellipse at 30% 20%,rgba(74,103,65,.05) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(74,103,65,.03) 0%,transparent 50%)',
+  'radial-gradient(ellipse at 50% 10%,rgba(74,103,65,.06) 0%,transparent 50%),radial-gradient(ellipse at 20% 70%,rgba(74,103,65,.04) 0%,transparent 50%)',
+  'radial-gradient(ellipse at 70% 30%,rgba(74,103,65,.04) 0%,transparent 50%),radial-gradient(ellipse at 30% 80%,rgba(74,103,65,.05) 0%,transparent 50%)',
+  'radial-gradient(ellipse at 50% 50%,rgba(74,103,65,.07) 0%,transparent 50%),radial-gradient(ellipse at 50% 50%,rgba(74,103,65,.03) 0%,transparent 60%)',
+  'radial-gradient(ellipse at 50% 40%,rgba(74,103,65,.08) 0%,transparent 50%),radial-gradient(ellipse at 40% 70%,rgba(74,103,65,.04) 0%,transparent 50%)',
+];
+
+function resetSlideAnimations(slideEl) {
+  // Reset SVG draw paths
+  slideEl.querySelectorAll('.draw-path').forEach(p => {
+    const len = p.style.getPropertyValue('--dash-len') || p.getAttribute('stroke-dasharray');
+    p.style.animation = 'none';
+    void p.offsetHeight;
+    p.style.animation = '';
+    if (len) p.setAttribute('stroke-dashoffset', len);
+  });
+  // Reset other animated SVG elements
+  slideEl.querySelectorAll('.chart-bar').forEach(el => {
+    el.style.animation = 'none';
+    el.style.transform = 'scaleY(0)';
+    void el.offsetHeight;
+    el.style.animation = '';
+  });
+  // Reset HTML audit card
+  slideEl.querySelectorAll('.audit-card,.audit-row-item').forEach(el => {
+    el.style.animation = 'none';
+    void el.offsetHeight;
+    el.style.animation = '';
+  });
+  slideEl.querySelectorAll('.pulse-dot,.trend-dot,.chart-label,.grid-line,.enhance-badge,.sparkle,.photo-thumb').forEach(el => {
+    el.style.animation = 'none';
+    void el.offsetHeight;
+    el.style.animation = '';
+  });
+  // (SVG check-paths removed — audit card is now HTML)
+  // Reset word animations
+  slideEl.querySelectorAll('.word').forEach(w => {
+    w.style.animation = 'none';
+    void w.offsetHeight;
+    w.style.animation = '';
+  });
+  // Reset underline animations (force ::after re-trigger by toggling class)
+  slideEl.querySelectorAll('.s-title em').forEach(em => {
+    em.style.animation = 'none';
+    void em.offsetHeight;
+    em.style.animation = '';
+  });
+  // Reset logo animations
+  slideEl.querySelectorAll('.logo-bubble,.logo-wave').forEach(el => {
+    el.style.animation = 'none';
+    void el.offsetHeight;
+    el.style.animation = '';
+  });
+  // Reset counters
+  slideEl.querySelectorAll('[data-count-to]').forEach(el => {
+    el.textContent = '0' + (el.dataset.countSuffix || '');
+  });
+}
+
+function transitionSlide(from, to, direction) {
+  if (isTransitioning) return;
+  isTransitioning = true;
+
+  const fromEl = document.querySelector(`.slide[data-slide="${from}"]`);
+  const toEl = document.querySelector(`.slide[data-slide="${to}"]`);
+  if (!fromEl || !toEl) { isTransitioning = false; return; }
+
+  const typeIdx = direction === 'forward' ? from : to;
+  const type = transitionTypes[typeIdx] || 'slide-up';
+
+  // Reset target slide animations
+  resetSlideAnimations(toEl);
+
+  // Exit current
+  const allTransitions = ['active','enter-from-below','enter-from-above','enter-from-right','enter-from-left','enter-reveal'];
+  allTransitions.forEach(c => fromEl.classList.remove(c));
+  fromEl.classList.add(exitClasses[type][direction]);
+
+  // Prepare incoming
+  ['active','exit-up','exit-down','exit-left','exit-right','exit-reveal','exit-unrevealed'].forEach(c => toEl.classList.remove(c));
+  toEl.style.opacity = '0';
+  toEl.style.visibility = 'visible';
+  toEl.style.transform = enterStartTransform[type][direction];
+  toEl.style.transition = 'none';
+  toEl.style.pointerEvents = 'auto';
+
+  void toEl.offsetHeight;
+
+  requestAnimationFrame(() => {
+    toEl.style.transition = '';
+    toEl.classList.add(enterClasses[type][direction]);
+    toEl.style.opacity = '';
+    toEl.style.visibility = '';
+    toEl.style.transform = '';
+    toEl.style.pointerEvents = '';
+  });
+
+  // Update background & particles
+  document.getElementById('ambient').style.background = ambientConfigs[to];
+  if (window._setParticleSlide) window._setParticleSlide(to);
+
+  // Counter animations
+  setTimeout(() => {
+    toEl.querySelectorAll('[data-count-to]').forEach(el => {
+      animateCounter(el, parseFloat(el.dataset.countTo), 1200, el.dataset.countPrefix || '', el.dataset.countSuffix || '');
+    });
+  }, 500);
+
+  setTimeout(() => {
+    ['exit-up','exit-down','exit-left','exit-right','exit-reveal','exit-unrevealed'].forEach(c => fromEl.classList.remove(c));
+    fromEl.style.position = '';
+    isTransitioning = false;
+  }, 650);
+
+  updateNav();
+}
+
+function nextSlide() {
+  if (current >= totalSlides - 1 || isTransitioning) return;
+  const from = current; current++;
+  transitionSlide(from, current, 'forward');
+}
+function prevSlide() {
+  if (current <= 0 || isTransitioning) return;
+  const from = current; current--;
+  transitionSlide(from, current, 'backward');
+}
+
+btnNext.addEventListener('click', nextSlide);
+btnBack.addEventListener('click', prevSlide);
+
+// ═══════════════════════════════════════════════
+// 4. COUNTER ANIMATION
+// ═══════════════════════════════════════════════
+function animateCounter(el, target, duration, prefix, suffix) {
+  const start = performance.now();
+  function update(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const val = Math.round(target * eased);
+    el.textContent = prefix + val + suffix;
+    if (progress < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+// ═══════════════════════════════════════════════
+// 5. NAVIGATION + PROGRESS
+// ═══════════════════════════════════════════════
+function updateNav() {
+  btnBack.disabled = current === 0;
+  btnNext.style.display = current === totalSlides - 1 ? 'none' : '';
+
+  document.querySelectorAll('.progress-dot').forEach((dot, i) => {
+    dot.classList.remove('active', 'done');
+    if (i === current) dot.classList.add('active');
+    else if (i < current) dot.classList.add('done');
+  });
+  document.querySelectorAll('.progress-line').forEach((line, i) => {
+    line.classList.toggle('done', i < current);
+  });
+
+  document.getElementById('progress-fill').style.width = ((current + 1) / totalSlides * 100) + '%';
+}
+updateNav();
+
+// ═══════════════════════════════════════════════
+// 6. MOUSE / TOUCH PARALLAX
+// ═══════════════════════════════════════════════
+(function() {
+  let mx = 0.5, my = 0.5;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX / window.innerWidth;
+    my = e.clientY / window.innerHeight;
+  });
+  document.addEventListener('touchmove', e => {
+    const t = e.touches[0];
+    mx = t.clientX / window.innerWidth;
+    my = t.clientY / window.innerHeight;
+  }, { passive: true });
+
+  function tick() {
+    const active = document.querySelector('.slide.active,.slide.enter-from-below,.slide.enter-from-above,.slide.enter-from-right,.slide.enter-from-left,.slide.enter-reveal');
+    if (active) {
+      const cards = active.querySelectorAll('.detail-card,.feature-item,.ba-card');
+      cards.forEach((c, i) => {
+        const d = 0.4 + (i % 4) * 0.2;
+        c.style.transform = `translate(${(mx-.5)*5*d}px,${(my-.5)*3*d}px)`;
+      });
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+// ═══════════════════════════════════════════════
+// 7. BUTTON RIPPLE
+// ═══════════════════════════════════════════════
+document.querySelectorAll('.btn-next,.btn-back,.btn-book').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    const rect = this.getBoundingClientRect();
+    const ripple = document.createElement('span');
+    ripple.className = 'btn-ripple';
+    ripple.style.left = (e.clientX - rect.left) + 'px';
+    ripple.style.top = (e.clientY - rect.top) + 'px';
+    this.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove());
+  });
+});
+
+// ═══════════════════════════════════════════════
+// 8. SWIPE SUPPORT
+// ═══════════════════════════════════════════════
+(function() {
+  let startY = 0, startX = 0;
+  document.addEventListener('touchstart', e => {
+    startY = e.touches[0].clientY;
+    startX = e.touches[0].clientX;
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const dy = startY - e.changedTouches[0].clientY;
+    const dx = startX - e.changedTouches[0].clientX;
+    if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 50) {
+      if (dy > 0) nextSlide(); else prevSlide();
+    }
+  }, { passive: true });
+})();
+
+// ═══════════════════════════════════════════════
+// 9. KEYBOARD SUPPORT
+// ═══════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+  if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+});
+
+// ═══════════════════════════════════════════════
+// 10. TEAM BUBBLES – PHYSICS BOUNCE
+// ═══════════════════════════════════════════════
+(function() {
+  const container = document.getElementById('teamBubbles');
+  const slide4El = document.querySelector('.slide[data-slide="4"]');
+  const slideInner = slide4El ? slide4El.querySelector('.slide-inner') : null;
+  const members = [
+    { file: 'Alex.png',      size: 100 },
+    { file: 'Angela 1.png',  size: 85 },
+    { file: 'Azmeree.png',   size: 78 },
+    { file: 'Bryan.png',     size: 95 },
+    { file: 'Cady.png',      size: 80 },
+    { file: 'Chris.png',     size: 88 },
+    { file: 'David.png',     size: 82 },
+    { file: 'Marisa.png',    size: 92 },
+    { file: 'Nic.png',       size: 75 },
+    { file: 'Spencer.png',   size: 96 },
+  ];
+
+  const PAD = 10; // wall inset so bubbles stay fully on screen
+  const NAV_H = 60; // keep bubbles above bottom nav bar
+  const bubbles = [];
+  const W = () => container.offsetWidth || window.innerWidth;
+  const H = () => container.offsetHeight || window.innerHeight;
+
+  // Get the exclusion zone (the center text area) with extra padding
+  function getExclusion() {
+    if (!slideInner) return null;
+    const cr = container.getBoundingClientRect();
+    const sr = slideInner.getBoundingClientRect();
+    const pad = 20; // extra breathing room around text
+    return {
+      left:   sr.left   - cr.left - pad,
+      top:    sr.top    - cr.top  - pad,
+      right:  sr.right  - cr.left + pad,
+      bottom: sr.bottom - cr.top  + pad,
+    };
+  }
+
+  // Place bubbles only in the margin areas (not overlapping center content)
+  function spawnPosition(size) {
+    const w = W(), h = H() - NAV_H; // stay above nav bar
+    const ex = getExclusion();
+    for (let attempts = 0; attempts < 50; attempts++) {
+      const x = PAD + Math.random() * (w - size - PAD * 2);
+      const y = PAD + Math.random() * (h - size - PAD * 2);
+      if (ex) {
+        const cx = x + size / 2, cy = y + size / 2;
+        if (cx > ex.left && cx < ex.right && cy > ex.top && cy < ex.bottom) continue;
+      }
+      return { x, y };
+    }
+    // fallback: top-left corner
+    return { x: PAD, y: PAD };
+  }
+
+  members.forEach((m) => {
+    const el = document.createElement('div');
+    el.className = 'team-bubble';
+    el.style.width = m.size + 'px';
+    el.style.height = m.size + 'px';
+    const img = document.createElement('img');
+    img.src = m.file;
+    img.alt = '';
+    img.loading = 'lazy';
+    el.appendChild(img);
+    container.appendChild(el);
+
+    const pos = spawnPosition(m.size);
+    // Each bubble gets unique oscillation parameters for organic movement
+    const DRIFT = 8 + Math.random() * 7; // max drift radius (8-15px)
+    bubbles.push({
+      el,
+      anchorX: pos.x,
+      anchorY: pos.y,
+      size: m.size,
+      // Unique phase offsets and speeds so they don't move in sync
+      phaseX: Math.random() * Math.PI * 2,
+      phaseY: Math.random() * Math.PI * 2,
+      speedX: 0.3 + Math.random() * 0.4,   // slow oscillation
+      speedY: 0.25 + Math.random() * 0.35,
+      driftX: DRIFT,
+      driftY: DRIFT * (0.7 + Math.random() * 0.6),
+    });
+  });
+
+  let animId = null;
+  let startTime = null;
+
+  function step(now) {
+    if (!startTime) startTime = now;
+    const t = (now - startTime) / 1000;
+    const w = W(), h = H();
+
+    // 1. Compute desired sine positions
+    for (let i = 0; i < bubbles.length; i++) {
+      const b = bubbles[i];
+      b.curX = b.anchorX + Math.sin(t * b.speedX + b.phaseX) * b.driftX;
+      b.curY = b.anchorY + Math.cos(t * b.speedY + b.phaseY) * b.driftY;
+    }
+
+    // 2. Collision separation — push overlapping bubbles apart
+    for (let i = 0; i < bubbles.length; i++) {
+      for (let j = i + 1; j < bubbles.length; j++) {
+        const a = bubbles[i], bub = bubbles[j];
+        const ax = a.curX + a.size / 2, ay = a.curY + a.size / 2;
+        const bx = bub.curX + bub.size / 2, by = bub.curY + bub.size / 2;
+        const dx = bx - ax, dy = by - ay;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const minDist = (a.size + bub.size) / 2 + 4; // 4px gap
+        if (dist < minDist && dist > 0) {
+          const overlap = (minDist - dist) / 2;
+          const nx = dx / dist, ny = dy / dist;
+          a.curX -= nx * overlap;
+          a.curY -= ny * overlap;
+          bub.curX += nx * overlap;
+          bub.curY += ny * overlap;
+        }
+      }
+    }
+
+    // 3. Clamp within bounds (keep above nav bar)
+    const maxY = h - NAV_H;
+    for (let i = 0; i < bubbles.length; i++) {
+      const b = bubbles[i];
+      b.curX = Math.max(PAD, Math.min(b.curX, w - b.size - PAD));
+      b.curY = Math.max(PAD, Math.min(b.curY, maxY - b.size));
+      b.el.style.transform = 'translate(' + b.curX.toFixed(1) + 'px,' + b.curY.toFixed(1) + 'px)';
+    }
+
+    animId = requestAnimationFrame(step);
+  }
+
+  // Start/stop based on current slide
+  function checkSlide() {
+    const isActive = slide4El && (
+      slide4El.classList.contains('active') ||
+      slide4El.classList.contains('enter-from-below') ||
+      slide4El.classList.contains('enter-from-above') ||
+      slide4El.classList.contains('enter-reveal')
+    );
+    if (isActive && !animId) {
+      animId = requestAnimationFrame(step);
+    } else if (!isActive && animId) {
+      cancelAnimationFrame(animId);
+      animId = null;
+    }
+  }
+
+  if (slide4El) {
+    new MutationObserver(checkSlide).observe(slide4El, { attributes: true, attributeFilter: ['class'] });
+  }
+  checkSlide();
+})();
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>
