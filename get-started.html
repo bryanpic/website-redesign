@@ -115,6 +115,10 @@ body::before{
 .step.enter-from-below .step-desc,
 .step.enter-from-above .step-desc{animation:fadeSlideUp .55s var(--ease-out-expo) .3s both}
 
+.step.active .fee-badges,
+.step.enter-from-below .fee-badges,
+.step.enter-from-above .fee-badges{animation:fadeSlideUp .5s var(--ease-out-expo) .3s both}
+
 .step.active .radio-group,
 .step.active .option-cards,
 .step.enter-from-below .radio-group,
@@ -250,9 +254,9 @@ body::before{
 /* ── Fee Badges ── */
 .fee-badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px}
 .fee-badge{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:10px 18px;border-radius:100px;
-  font-size:13px;font-weight:500;letter-spacing:.01em;
+  display:inline-flex;align-items:center;gap:4px;
+  padding:8px 14px;border-radius:100px;
+  font-size:12px;font-weight:500;letter-spacing:.01em;
   border:1.5px solid var(--accent-border);
   background:var(--accent-light);color:var(--accent);
 }
