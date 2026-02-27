@@ -518,47 +518,12 @@ body::before{
       </div>
       <div class="form-actions">
         <button class="btn-back" onclick="prevStep()"><span class="arrow">←</span> Back</button>
-        <button class="btn-next" onclick="nextStep()" id="btn-step2">Next <span class="arrow">→</span></button>
-      </div>
-    </div>
-
-    <!-- Step 4: Schedule Call -->
-    <div class="step" data-step="3">
-      <div class="step-eyebrow">Contact Info</div>
-      <h1 class="step-title">Would you like to <em>schedule a call?</em></h1>
-      <p class="step-desc">We'll walk through your listings and show you exactly where the revenue opportunities are.</p>
-      <div class="option-cards">
-        <label class="option-card">
-          <input type="radio" name="schedule" value="yes">
-          <div class="oc-label">
-            <div class="oc-radio"></div>
-            <div class="oc-icon">📞</div>
-            <div>
-              <div style="font-weight:500">Yes, let's talk</div>
-              <div style="font-size:13px;color:var(--g400);font-weight:300;margin-top:2px">We'll send a scheduling link to your email</div>
-            </div>
-          </div>
-        </label>
-        <label class="option-card">
-          <input type="radio" name="schedule" value="no">
-          <div class="oc-label">
-            <div class="oc-radio"></div>
-            <div class="oc-icon">📋</div>
-            <div>
-              <div style="font-weight:500">Not right now</div>
-              <div style="font-size:13px;color:var(--g400);font-weight:300;margin-top:2px">Send me a listing analysis report instead</div>
-            </div>
-          </div>
-        </label>
-      </div>
-      <div class="form-actions">
-        <button class="btn-back" onclick="prevStep()"><span class="arrow">←</span> Back</button>
-        <button class="btn-next accent" onclick="submitForm()" disabled id="btn-step3">Submit <span class="arrow">→</span></button>
+        <button class="btn-next accent" onclick="submitForm()" id="btn-step2">Submit <span class="arrow">→</span></button>
       </div>
     </div>
 
     <!-- Success State -->
-    <div class="step" data-step="4">
+    <div class="step" data-step="3">
       <div class="success-state" id="success-state">
         <div class="success-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="#4A6741" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
@@ -580,19 +545,13 @@ body::before{
 
 <script>
 let current = 0;
-const totalSteps = 4;
+const totalSteps = 3;
 let isTransitioning = false;
 
 // Enable/disable next based on selection
 document.querySelectorAll('input[name="listings"]').forEach(r => {
   r.addEventListener('change', () => {
     document.getElementById('btn-step0').disabled = false;
-  });
-});
-
-document.querySelectorAll('input[name="schedule"]').forEach(r => {
-  r.addEventListener('change', () => {
-    document.getElementById('btn-step3').disabled = false;
   });
 });
 
@@ -704,13 +663,15 @@ function launchConfetti() {
 }
 
 function submitForm() {
+  if (!validateStep(2)) return;
+
   const data = {
     listings: document.querySelector('input[name="listings"]:checked')?.value,
     airbnbUrl: document.getElementById('airbnb-url').value,
     name: document.getElementById('full-name').value,
     email: document.getElementById('email').value,
     phone: document.getElementById('phone-code').value + ' ' + document.getElementById('phone').value,
-    schedule: document.querySelector('input[name="schedule"]:checked')?.value
+    schedule: 'yes'
   };
 
   console.log('Form submitted:', data);
@@ -722,28 +683,12 @@ function submitForm() {
     body: JSON.stringify(data)
   });
 
-  // If they want a call, redirect to Cal.com with pre-filled params
-  if (data.schedule === 'yes') {
-    const params = new URLSearchParams({
-      name: data.name,
-      email: data.email,
-    });
-    window.location.href = `https://cal.com/rev-whisper/discovery?${params.toString()}`;
-    return;
-  }
-
-  // Otherwise show success state
-  document.getElementById('confirm-email').textContent = data.email;
-
-  const from = current;
-  current = totalSteps;
-  transitionStep(from, current, 'forward');
-
-  // Trigger success animations after step transition
-  setTimeout(() => {
-    document.getElementById('success-state').classList.add('revealed');
-    launchConfetti();
-  }, 350);
+  // Redirect to Cal.com with pre-filled params
+  const params = new URLSearchParams({
+    name: data.name,
+    email: data.email,
+  });
+  window.location.href = `https://cal.com/rev-whisper/discovery?${params.toString()}`;
 }
 
 // Clear error on input
