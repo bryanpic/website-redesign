@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enroll | RevWhisper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Sans:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{height:100%;overflow:hidden}
+body{
+  font-family:'DM Sans','system-ui','Helvetica Neue',sans-serif;
+  background:#fff;color:#32302F;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  height:100%;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+:root{
+  --black:#32302F;
+  --white:#ffffff;
+  --accent:#4A6741;
+  --accent-light:#dce6d8;
+  --accent-border:#b3c5ab;
+  --g50:#faf9f8;--g100:#f3f1ef;--g200:#E0DCDA;--g300:#ccc8c5;--g400:#a39e9b;--g500:#706b68;--g700:#48433f;
+  --radius:8px;--radius-sm:6px;
+  --sh-sm:0 1px 3px rgba(50,48,47,.06),0 1px 2px rgba(50,48,47,.04);
+  --sh:0 4px 16px rgba(50,48,47,.07),0 2px 6px rgba(50,48,47,.04);
+  --sh-lg:0 16px 48px rgba(50,48,47,.1),0 4px 12px rgba(50,48,47,.05);
+  --heading:'Lora','Georgia',serif;
+  --body:'DM Sans','system-ui','Helvetica Neue',sans-serif;
+  --ease-out-expo:cubic-bezier(.16,1,.3,1);
+  --ease-out-back:cubic-bezier(.34,1.56,.64,1);
+  --ease-spring:cubic-bezier(.25,.1,.25,1.4);
+}
+
+/* ── Ambient Background ── */
+body::before{
+  content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(74,103,65,.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(74,103,65,.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(74,103,65,.02) 0%, transparent 70%);
+  animation:ambientDrift 20s ease-in-out infinite alternate;
+  pointer-events:none;z-index:0;
+}
+@keyframes ambientDrift{
+  0%{transform:translate(0,0) rotate(0deg)}
+  100%{transform:translate(30px,-20px) rotate(2deg)}
+}
+
+/* ── Form Container ── */
+.form-shell{width:100%;max-width:560px;padding:28px;position:relative;z-index:1;margin:auto}
+
+/* ── Step Container ── */
+.steps-viewport{position:relative}
+.step{
+  position:absolute;top:0;left:0;right:0;
+  opacity:0;visibility:hidden;
+  transform:translateY(20px);
+  transition:none;
+  pointer-events:none;
+}
+.step.active{
+  position:relative;
+  opacity:1;visibility:visible;
+  transform:translateY(0);
+  pointer-events:auto;
+}
+
+/* ── Transition States ── */
+.step.exit-up{
+  position:absolute;
+  opacity:0;visibility:visible;
+  transform:translateY(-30px) scale(.98);
+  transition:opacity .35s var(--ease-out-expo), transform .35s var(--ease-out-expo), visibility 0s .35s;
+  pointer-events:none;
+}
+.step.exit-down{
+  position:absolute;
+  opacity:0;visibility:visible;
+  transform:translateY(30px) scale(.98);
+  transition:opacity .35s var(--ease-out-expo), transform .35s var(--ease-out-expo), visibility 0s .35s;
+  pointer-events:none;
+}
+.step.enter-from-below{
+  position:relative;
+  opacity:1;visibility:visible;
+  transform:translateY(0);
+  transition:opacity .5s var(--ease-out-expo) .1s, transform .5s var(--ease-out-expo) .1s;
+  pointer-events:auto;
+}
+.step.enter-from-above{
+  position:relative;
+  opacity:1;visibility:visible;
+  transform:translateY(0);
+  transition:opacity .5s var(--ease-out-expo) .1s, transform .5s var(--ease-out-expo) .1s;
+  pointer-events:auto;
+}
+
+/* ── Staggered Child Reveal ── */
+.step.active .step-eyebrow,
+.step.enter-from-below .step-eyebrow,
+.step.enter-from-above .step-eyebrow{animation:fadeSlideUp .5s var(--ease-out-expo) .15s both}
+
+.step.active .step-title,
+.step.enter-from-below .step-title,
+.step.enter-from-above .step-title{animation:fadeSlideUp .55s var(--ease-out-expo) .22s both}
+
+.step.active .step-desc,
+.step.enter-from-below .step-desc,
+.step.enter-from-above .step-desc{animation:fadeSlideUp .55s var(--ease-out-expo) .3s both}
+
+.step.active .field,
+.step.enter-from-below .field,
+.step.enter-from-above .field{animation:fadeSlideUp .5s var(--ease-out-expo) .38s both}
+
+.step.active .field ~ .field,
+.step.enter-from-below .field ~ .field,
+.step.enter-from-above .field ~ .field{animation-delay:.44s}
+
+.step.active .field ~ .field ~ .field,
+.step.enter-from-below .field ~ .field ~ .field,
+.step.enter-from-above .field ~ .field ~ .field{animation-delay:.50s}
+
+.step.active .form-actions,
+.step.enter-from-below .form-actions,
+.step.enter-from-above .form-actions{animation:fadeSlideUp .5s var(--ease-out-expo) .46s both}
+
+.step.active .listings-section,
+.step.enter-from-below .listings-section,
+.step.enter-from-above .listings-section{animation:fadeSlideUp .5s var(--ease-out-expo) .38s both}
+
+.step.active .terms-section,
+.step.enter-from-below .terms-section,
+.step.enter-from-above .terms-section{animation:fadeSlideUp .5s var(--ease-out-expo) .38s both}
+
+@keyframes fadeSlideUp{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ── Step Header ── */
+.step-eyebrow{font-size:11px;font-weight:500;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.step-title{font-family:var(--heading);font-size:clamp(28px,4vw,36px);font-weight:400;letter-spacing:-.02em;line-height:1.15;color:var(--black);margin-bottom:10px}
+.step-title em{font-style:italic;color:var(--accent);position:relative}
+.step-title em::after{
+  content:'';position:absolute;bottom:-2px;left:-2%;width:104%;height:2px;
+  background:var(--accent);border-radius:2px;
+  transform:scaleX(0) rotate(-1.5deg);transform-origin:left;
+  animation:underlineDraw .6s var(--ease-out-expo) .55s forwards;
+}
+.step-desc{font-size:15px;color:var(--g500);line-height:1.7;font-weight:300;margin-bottom:36px;max-width:440px}
+
+/* ── Plan Badge ── */
+.plan-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 14px;background:var(--accent-light);border:1px solid var(--accent-border);
+  border-radius:20px;font-size:12px;font-weight:600;color:var(--accent);
+  letter-spacing:.02em;margin-bottom:20px;
+}
+
+/* ── Text Inputs ── */
+.field{margin-bottom:20px}
+.field-label{display:block;font-size:13px;font-weight:500;color:var(--black);margin-bottom:7px;transition:color .2s}
+.field-input{
+  width:100%;padding:13px 16px;
+  border:1.5px solid var(--g200);border-radius:var(--radius);
+  font-size:15px;font-family:var(--body);color:var(--black);background:#fff;
+  outline:none;
+  transition:border-color .3s, box-shadow .3s var(--ease-out-expo), transform .2s var(--ease-out-expo);
+}
+.field-input::placeholder{color:var(--g400);font-weight:300}
+.field-input:hover{border-color:var(--g300)}
+.field-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,103,65,.1);transform:translateY(-1px)}
+.field:focus-within .field-label{color:var(--accent)}
+.field-input.error{border-color:#B85252;box-shadow:0 0 0 3px rgba(184,82,82,.08);animation:inputShake .4s var(--ease-out-expo)}
+@keyframes inputShake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-6px)}
+  40%{transform:translateX(5px)}
+  60%{transform:translateX(-3px)}
+  80%{transform:translateX(2px)}
+}
+.field-hint{font-size:12px;color:var(--g400);margin-top:5px;font-weight:300}
+.field-error{font-size:12px;color:#B85252;margin-top:5px;font-weight:400;display:none}
+.field-input.error ~ .field-error{display:block;animation:fadeSlideUp .3s var(--ease-out-expo)}
+.field-input.error ~ .field-hint{display:none}
+
+/* ── URL Input with icon ── */
+.input-icon-wrap{position:relative}
+.input-icon-wrap .field-input{padding-left:42px}
+.input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--g400);display:flex;align-items:center;transition:color .3s;z-index:2;pointer-events:none}
+.field:focus-within .input-icon{color:var(--accent)}
+
+/* ── Phone Input ── */
+.phone-wrap{display:flex;gap:8px}
+.phone-code{
+  width:90px;padding:13px 12px;
+  border:1.5px solid var(--g200);border-radius:var(--radius);
+  font-size:14px;font-family:var(--body);color:var(--black);background:#fff;
+  outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23a39e9b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  transition:border-color .3s,box-shadow .3s var(--ease-out-expo);
+}
+.phone-code:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,103,65,.1)}
+.phone-input{flex:1}
+
+/* ── Listings Section ── */
+.listings-section{margin-bottom:28px}
+.listings-section .field-label{margin-bottom:12px}
+.listing-entries{display:flex;flex-direction:column;gap:10px}
+.listing-entry{display:flex;gap:8px;align-items:center}
+.listing-entry .input-icon-wrap{flex:1}
+.listing-remove{
+  width:36px;height:44px;display:flex;align-items:center;justify-content:center;
+  background:none;border:1.5px solid var(--g200);border-radius:var(--radius);
+  cursor:pointer;color:var(--g400);font-size:16px;
+  transition:border-color .2s,color .2s,background .2s;
+  flex-shrink:0;
+}
+.listing-remove:hover{border-color:#B85252;color:#B85252;background:rgba(184,82,82,.04)}
+.listing-remove:only-of-type{display:none}
+.listing-add{
+  display:inline-flex;align-items:center;gap:6px;
+  background:none;border:none;cursor:pointer;
+  font-size:13px;font-weight:500;color:var(--accent);
+  font-family:var(--body);padding:8px 0;
+  transition:opacity .2s;
+}
+.listing-add:hover{opacity:.7}
+.listing-add svg{transition:transform .2s var(--ease-out-back)}
+.listing-add:hover svg{transform:rotate(90deg)}
+
+/* ── Terms Section ── */
+.terms-section{margin-bottom:24px}
+.terms-box{
+  max-height:280px;overflow-y:auto;
+  padding:20px;background:var(--g50);border:1.5px solid var(--g200);
+  border-radius:var(--radius);font-size:12px;color:var(--g500);
+  line-height:1.7;margin-bottom:16px;
+}
+.terms-box::-webkit-scrollbar{width:5px}
+.terms-box::-webkit-scrollbar-track{background:transparent}
+.terms-box::-webkit-scrollbar-thumb{background:var(--g300);border-radius:3px}
+.terms-box h3{font-family:var(--heading);font-size:14px;font-weight:600;color:var(--black);margin:20px 0 8px;letter-spacing:-.01em}
+.terms-box h3:first-child{margin-top:0}
+.terms-box h4{font-size:12px;font-weight:600;color:var(--g700);margin:14px 0 4px}
+.terms-box p{margin-bottom:8px}
+.terms-box ul{margin:4px 0 8px 16px}
+.terms-box li{margin-bottom:3px}
+.terms-box .terms-title{font-family:var(--heading);font-size:16px;font-weight:700;color:var(--black);text-align:center;margin-bottom:2px}
+.terms-box .terms-subtitle{font-size:12px;color:var(--g500);text-align:center;margin-bottom:16px;font-weight:400}
+
+.terms-agree{display:flex;align-items:flex-start;gap:10px;cursor:pointer}
+.terms-agree input{display:none}
+.terms-checkbox{
+  width:20px;height:20px;border-radius:4px;border:1.5px solid var(--g300);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  margin-top:1px;transition:all .25s var(--ease-out-back);background:#fff;
+}
+.terms-agree input:checked ~ .terms-checkbox{background:var(--accent);border-color:var(--accent);transform:scale(1.05)}
+.terms-checkbox svg{opacity:0;transform:scale(.5);transition:all .25s var(--ease-out-back)}
+.terms-agree input:checked ~ .terms-checkbox svg{opacity:1;transform:scale(1)}
+.terms-agree-text{font-size:13px;color:var(--g500);line-height:1.5;font-weight:300}
+.terms-agree-text strong{color:var(--black);font-weight:500}
+.terms-agree.error .terms-checkbox{border-color:#B85252;box-shadow:0 0 0 3px rgba(184,82,82,.08);animation:inputShake .4s var(--ease-out-expo)}
+
+/* ── Buttons ── */
+.form-actions{display:flex;align-items:center;gap:12px;margin-top:8px}
+.btn-next{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--black);color:#fff;font-size:14px;font-weight:400;letter-spacing:0;
+  padding:14px 28px;border-radius:var(--radius-sm);border:none;cursor:pointer;
+  font-family:var(--body);position:relative;overflow:hidden;
+  transition:transform .25s var(--ease-out-back), box-shadow .3s, opacity .3s;
+}
+.btn-next::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.15) 0%,transparent 60%);
+  opacity:0;transition:opacity .3s;
+}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(50,48,47,.15)}
+.btn-next:hover::before{opacity:1}
+.btn-next:active{transform:translateY(0) scale(.97);box-shadow:var(--sh-sm)}
+.btn-next:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-next:disabled:hover{transform:none;box-shadow:none}
+.btn-next:disabled::before{display:none}
+.btn-next.accent{background:var(--accent)}
+.btn-next .arrow{display:inline-block;transition:transform .25s var(--ease-out-expo)}
+.btn-next:hover:not(:disabled) .arrow{transform:translateX(3px)}
+
+.btn-back{
+  display:inline-flex;align-items:center;gap:6px;
+  background:transparent;color:var(--g500);font-size:13px;font-weight:400;
+  padding:14px 16px;border-radius:var(--radius-sm);border:1.5px solid var(--g200);
+  cursor:pointer;font-family:var(--body);
+  transition:border-color .25s,color .25s,transform .2s var(--ease-out-back),box-shadow .25s;
+}
+.btn-back .arrow{display:inline-block;transition:transform .25s var(--ease-out-expo)}
+.btn-back:hover{border-color:var(--g300);color:var(--black);transform:translateY(-1px);box-shadow:var(--sh-sm)}
+.btn-back:hover .arrow{transform:translateX(-3px)}
+.btn-back:active{transform:scale(.97)}
+
+@keyframes underlineDraw{
+  from{transform:scaleX(0) rotate(-1.5deg)}
+  to{transform:scaleX(1) rotate(-1.5deg)}
+}
+
+/* ── Success State ── */
+.success-state{text-align:center;padding:32px 0}
+.success-icon{
+  width:80px;height:80px;border-radius:50%;
+  background:var(--accent-light);border:2px solid var(--accent-border);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 28px;position:relative;
+}
+.success-icon svg{opacity:0}
+.success-state.revealed .success-icon{animation:iconBounceIn .6s var(--ease-out-back) forwards}
+.success-state.revealed .success-icon svg{animation:checkDraw .4s var(--ease-out-expo) .4s forwards}
+.success-state.revealed .success-icon::after{
+  content:'';position:absolute;inset:-8px;border-radius:50%;
+  border:2px solid var(--accent-border);opacity:0;
+  animation:ringPulse .8s var(--ease-out-expo) .3s forwards;
+}
+@keyframes iconBounceIn{
+  0%{opacity:0;transform:scale(0)}
+  50%{transform:scale(1.12)}
+  70%{transform:scale(.95)}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes checkDraw{
+  from{opacity:0;transform:scale(.5) rotate(-10deg)}
+  to{opacity:1;transform:scale(1) rotate(0deg)}
+}
+@keyframes ringPulse{
+  0%{opacity:0;transform:scale(.8)}
+  50%{opacity:.4}
+  100%{opacity:0;transform:scale(1.3)}
+}
+
+.success-title{
+  font-family:var(--heading);font-size:clamp(26px,4vw,32px);font-weight:400;
+  letter-spacing:-.02em;color:var(--black);margin-bottom:10px;opacity:0;
+}
+.success-title em{font-style:italic;color:var(--accent)}
+.success-state.revealed .success-title{animation:fadeSlideUp .5s var(--ease-out-expo) .5s forwards}
+
+.success-desc{
+  font-size:15px;color:var(--g500);line-height:1.7;font-weight:300;
+  max-width:400px;margin:0 auto 32px;opacity:0;
+}
+.success-state.revealed .success-desc{animation:fadeSlideUp .5s var(--ease-out-expo) .6s forwards}
+
+.success-detail{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:12px 20px;background:var(--g50);border:1px solid var(--g200);
+  border-radius:var(--radius);font-size:13px;color:var(--g500);opacity:0;
+}
+.success-detail strong{color:var(--black);font-weight:600}
+.success-state.revealed .success-detail{animation:fadeSlideUp .5s var(--ease-out-expo) .72s forwards}
+
+/* ── Confetti ── */
+.confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:100;overflow:hidden}
+.confetti{position:absolute;width:8px;height:8px;border-radius:2px;opacity:0}
+.confetti.go{animation:confettiFall var(--fall-dur, 2.5s) var(--ease-out-expo) forwards}
+@keyframes confettiFall{
+  0%{opacity:1;transform:translateY(0) rotate(0deg) scale(1)}
+  20%{opacity:1}
+  100%{opacity:0;transform:translateY(calc(100vh + 50px)) rotate(var(--spin, 720deg)) scale(.3)}
+}
+
+/* ── Page Load Animation ── */
+.form-shell{opacity:0;transform:translateY(16px);animation:initialLoad .7s var(--ease-out-expo) .1s forwards}
+@keyframes initialLoad{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ── Responsive ── */
+@media(max-width:640px){
+  html,body{overflow-y:auto}
+  body{padding:20px}
+  .form-shell{max-width:100%}
+  .step-title{font-size:26px}
+  .phone-wrap{flex-direction:column}
+  .phone-code{width:100%}
+  .terms-box{max-height:200px}
+}
+</style>
+</head>
+<body>
+
+<div class="form-shell">
+  <div class="steps-viewport">
+
+    <!-- Step 1: Contact Info -->
+    <div class="step active" data-step="0">
+      <div class="step-eyebrow">Enrollment</div>
+      <h1 class="step-title">Let's get you <em>started.</em></h1>
+      <p class="step-desc">Tell us who you are so we can set up your account and begin onboarding.</p>
+      <div id="plan-badge" class="plan-badge" style="display:none"></div>
+      <div class="field">
+        <label class="field-label" for="full-name">Full Name</label>
+        <input type="text" class="field-input" id="full-name" placeholder="Jane Doe" autocomplete="name">
+        <div class="field-error">Please enter your name</div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="email">Email</label>
+        <div class="input-icon-wrap">
+          <div class="input-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          </div>
+          <input type="email" class="field-input" id="email" placeholder="jane@example.com" autocomplete="email">
+        </div>
+        <div class="field-error">Please enter a valid email</div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="phone">Phone Number</label>
+        <div class="phone-wrap">
+          <select class="phone-code" id="phone-code">
+            <option value="+1">🇺🇸 +1</option>
+            <option value="+44">🇬🇧 +44</option>
+            <option value="+61">🇦🇺 +61</option>
+            <option value="+33">🇫🇷 +33</option>
+            <option value="+49">🇩🇪 +49</option>
+            <option value="+81">🇯🇵 +81</option>
+            <option value="+52">🇲🇽 +52</option>
+            <option value="+34">🇪🇸 +34</option>
+            <option value="+39">🇮🇹 +39</option>
+            <option value="+55">🇧🇷 +55</option>
+          </select>
+          <input type="tel" class="field-input phone-input" id="phone" placeholder="(555) 123-4567" autocomplete="tel">
+        </div>
+        <div class="field-error">Please enter a valid phone number</div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-next" onclick="nextStep()" id="btn-step0">Next <span class="arrow">→</span></button>
+      </div>
+    </div>
+
+    <!-- Step 2: Airbnb Listings -->
+    <div class="step" data-step="1">
+      <div class="step-eyebrow">Your Listings</div>
+      <h1 class="step-title">Add your Airbnb <em>listings.</em></h1>
+      <p class="step-desc">Paste each listing URL individually. We'll audit and optimize every one.</p>
+      <div class="listings-section">
+        <label class="field-label">Airbnb Listing URLs</label>
+        <div class="listing-entries" id="listing-entries">
+          <div class="listing-entry">
+            <div class="input-icon-wrap">
+              <div class="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+              </div>
+              <input type="url" class="field-input listing-url" placeholder="https://www.airbnb.com/rooms/..." autocomplete="off">
+            </div>
+            <button type="button" class="listing-remove" onclick="removeListing(this)" title="Remove listing">×</button>
+          </div>
+        </div>
+        <button type="button" class="listing-add" onclick="addListing()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          Add another listing
+        </button>
+        <div class="field-error" id="listing-error" style="display:none">Please add at least one Airbnb listing URL</div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-back" onclick="prevStep()"><span class="arrow">←</span> Back</button>
+        <button class="btn-next" onclick="nextStep()" id="btn-step1">Next <span class="arrow">→</span></button>
+      </div>
+    </div>
+
+    <!-- Step 3: Terms & Agreement -->
+    <div class="step" data-step="2">
+      <div class="step-eyebrow">Service Agreement</div>
+      <h1 class="step-title">Review the <em>terms.</em></h1>
+      <p class="step-desc">Please read our service agreement below, then confirm to complete enrollment.</p>
+      <div class="terms-section">
+        <div class="terms-box" id="terms-box">
+          <div class="terms-title">SERVICE AGREEMENT</div>
+          <div class="terms-subtitle">Revenue Uplift &amp; Listing Optimization Services<br>MNW Holdings LLC d/b/a RevWhisper</div>
+
+          <p>This Service Agreement (this &ldquo;Agreement&rdquo;) is entered into as of the date of the last signature below (the &ldquo;Effective Date&rdquo;), by and between:</p>
+          <p><strong>MNW Holdings LLC</strong>, a Delaware limited liability company, doing business as RevWhisper (&ldquo;Provider&rdquo; or &ldquo;RevWhisper&rdquo;); and the individual or entity identified on the signature page below (&ldquo;Client&rdquo;).</p>
+          <p>Provider and Client are each a &ldquo;Party&rdquo; and collectively the &ldquo;Parties.&rdquo; This Agreement is valid for one (1) property only.</p>
+
+          <h3>1. Services</h3>
+          <h4>1.1 Scope of Services</h4>
+          <p>Provider shall deliver the following done-for-you revenue uplift and listing optimization services for the Client&rsquo;s short-term rental property (the &ldquo;Listing&rdquo;):</p>
+          <p><strong>(a) Dynamic Pricing Management.</strong> Daily pricing adjustments informed by booking pace, competitive set movement, local event calendars, and platform-specific demand signals. Custom promotion deployment across all connected OTAs, including Airbnb weekly/monthly coupons, last-minute deals, and early bird discounts. Minimum stay optimization by season, day-of-week, and booking window. Gap night identification and tactical pricing adjustments. Monthly revenue reporting including ADR trends, RevPAR benchmarking, occupancy pacing, and actions taken.</p>
+          <p><strong>(b) Listing Content Optimization.</strong> Algorithmic title optimization, keyword-dense description engineering, amenity audit and optimization, review response strategy, and seasonal content refresh cycles (minimum quarterly). All content optimized per OTA&rsquo;s known indexing and search patterns.</p>
+          <p><strong>(c) Photo Optimization.</strong> Professional photo editing (brightness, white balance, color correction, declutter retouching), photo ordering optimization by season and property type, visual description writing for all photo caption fields, photo gap analysis benchmarked against the competitive set, and photo quality scoring against known OTA algorithm signals.</p>
+          <p><strong>(d) OTA Algorithm Strategy.</strong> Platform-specific algorithmic optimization across Airbnb and any additional OTAs connected to the Client&rsquo;s account. This includes Instant Book strategy, calendar freshness management, response rate monitoring, Superhost/Guest Favorite qualification strategy, and new listing boost exploitation where applicable.</p>
+          <p><strong>(e) Competitive Intelligence.</strong> Identification and ongoing monitoring of a competitive set of comparable listings per property. Tracking of competitor pricing, availability, reviews, and promotional activity to inform pricing and content strategy.</p>
+          <p><strong>(f) Reporting.</strong> Monthly performance report delivered to Client showing revenue versus prior period, revenue versus market, ranking changes, actions taken, and upcoming strategy.</p>
+
+          <h4>1.2 Execution Model</h4>
+          <p>Provider executes all services directly. All pricing changes, promotion deployments, photo edits, description rewrites, photo uploads, review responses, and listing updates are performed by Provider&rsquo;s team. Client is not expected to log into any platform to make edits.</p>
+
+          <h4>1.3 Onboarding</h4>
+          <p>Upon execution of this Agreement, Provider shall conduct an initial onboarding process for the Listing, which includes: a full listing health score audit, competitive set identification, guest avatar profiling, market demand baseline analysis, initial photo audit and editing pass, keyword and filter audit, baseline ranking position tracking, and setup of all monitoring systems. The onboarding process is expected to take approximately ten (10) business days from the date Provider receives all required account access.</p>
+
+          <h4>1.4 Services Not Included</h4>
+          <p>Provider does not provide property management, guest communication, cleaning coordination, maintenance services, or any on-site services. Provider does not handle payment processing, financial account management, or tax preparation on behalf of Client.</p>
+
+          <h3>2. Term and Termination</h3>
+          <h4>2.1 Initial Term</h4>
+          <p>This Agreement shall commence on the Effective Date under one of the following term options selected by Client at signing:</p>
+          <ul>
+            <li><strong>3-Month Plan:</strong> An initial term of three (3) months, after which this Agreement shall automatically continue on a month-to-month basis unless terminated in accordance with this Agreement.</li>
+            <li><strong>12-Month Plan:</strong> An initial term of twelve (12) months, after which this Agreement shall automatically renew for additional annual terms unless either Party provides written notice of non-renewal at least thirty (30) days prior to the end of the then-current term.</li>
+          </ul>
+
+          <h4>2.2 Renewal</h4>
+          <ul>
+            <li><strong>3-Month Plan:</strong> Automatically continues on a month-to-month basis. Either Party may terminate with thirty (30) days written notice.</li>
+            <li><strong>12-Month Plan:</strong> Automatically renews for additional annual terms unless either Party provides written notice of non-renewal at least thirty (30) days prior to the end of the then-current term.</li>
+          </ul>
+
+          <h4>2.3 Early Termination</h4>
+          <ul>
+            <li><strong>3-Month Plan:</strong> If Client terminates prior to the expiration of the Initial Term, Client shall pay an early termination fee equal to two (2) months of the applicable Monthly Fee, due within fifteen (15) days of the date of termination notice.</li>
+            <li><strong>12-Month Plan:</strong> No early termination is permitted during the Initial Term. Client is committed to the full twelve (12) month term.</li>
+          </ul>
+
+          <h4>2.4 Effect of Termination</h4>
+          <p>Upon termination or expiration: (a) Provider shall cease all services within five (5) business days; (b) Provider shall remove itself from all Client accounts within five (5) business days; (c) Client shall pay all outstanding fees through the effective date of termination; and (d) all work product created during the term shall remain the property of Client pursuant to Section 7.</p>
+
+          <h3>3. Fees and Payment</h3>
+          <h4>3.1 Onboarding Fee</h4>
+          <p>Client shall pay a one-time onboarding fee of $998.00 per Listing (the &ldquo;Onboarding Fee&rdquo;). The Onboarding Fee is due upon execution of this Agreement and is non-refundable.</p>
+
+          <h4>3.2 Monthly Service Fee</h4>
+          <ul>
+            <li><strong>3-Month Plan (Month-to-Month):</strong> $750.00 per month, per Listing. The first Monthly Fee is due upon execution. Subsequent fees are due on the first (1st) of each calendar month.</li>
+            <li><strong>12-Month Plan (Annual, Paid Upfront):</strong> $500.00 per month, per Listing, paid in full upfront at signing ($6,000.00 total).</li>
+          </ul>
+
+          <h4>3.3 Payment Method</h4>
+          <p>All fees shall be paid via Stripe invoice or credit card. Provider may use a third-party payment processor.</p>
+
+          <h4>3.4 Late Payment</h4>
+          <p>Any amount not paid when due shall accrue interest at the rate of 1.5% per month, or the maximum rate permitted by applicable law, whichever is less. If payment is not received within five (5) business days of the due date, Provider may suspend all services until the account is brought current.</p>
+
+          <h4>3.5 Portfolio Pricing</h4>
+          <p>Clients with ten (10) or more Listings may be eligible for portfolio pricing. Contact Provider for details.</p>
+
+          <h3>4. Account Access and Credentials</h3>
+          <h4>4.1 Required Access</h4>
+          <p>Client shall provide Provider with: Airbnb team member access with full authority (excluding payment and payout settings); PMS credentials with necessary permissions; access to Client&rsquo;s photo library.</p>
+
+          <h4>4.2 Restricted Access</h4>
+          <p>Provider shall not access, modify, or manage Client&rsquo;s payment settings, payout information, bank account details, tax information, or any financial account credentials.</p>
+
+          <h4>4.3 Security</h4>
+          <p>Provider shall use commercially reasonable security measures to protect Client&rsquo;s account credentials and shall not share them with any third party without Client&rsquo;s prior written consent.</p>
+
+          <h3>5. Confidentiality</h3>
+          <p>Each Party shall maintain the confidentiality of all proprietary and confidential information received from the other Party in connection with this Agreement.</p>
+
+          <h3>6. Data and Privacy</h3>
+          <p>Provider shall handle all Client data in accordance with applicable data protection laws and its Privacy Policy.</p>
+
+          <h3>7. Intellectual Property</h3>
+          <h4>7.1 Work Product Ownership</h4>
+          <p>All work product created by Provider specifically for Client shall be owned by Client upon full payment of all fees due.</p>
+
+          <h4>7.2 Provider Tools and Methods</h4>
+          <p>Provider&rsquo;s proprietary tools, methodologies, frameworks, templates, processes, and general know-how remain the exclusive property of Provider.</p>
+
+          <h3>8. Disclaimers and Limitation of Liability</h3>
+          <h4>8.1 No Revenue Guarantee</h4>
+          <p>Provider does not guarantee any specific level of revenue, occupancy, or ranking improvement. Provider&rsquo;s obligation is to apply professional expertise and commercially reasonable efforts.</p>
+
+          <h4>8.2 OTA Platform Risk</h4>
+          <p>Changes to Airbnb platforms, including algorithm updates, policy changes, or account suspensions not caused by Provider, are outside Provider&rsquo;s control and shall not constitute a breach.</p>
+
+          <h4>8.3 Client Actions</h4>
+          <p>Provider shall not be liable for negative outcomes resulting from Client&rsquo;s actions, including modifications to listings without coordinating with Provider, poor guest experiences, or violation of platform terms.</p>
+
+          <h4>8.4 Limitation of Liability</h4>
+          <p>PROVIDER&rsquo;S TOTAL AGGREGATE LIABILITY SHALL NOT EXCEED THE TOTAL FEES PAID BY CLIENT DURING THE THREE (3) MONTHS IMMEDIATELY PRECEDING THE EVENT GIVING RISE TO THE CLAIM. IN NO EVENT SHALL PROVIDER BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES.</p>
+
+          <h4>8.5 Indemnification</h4>
+          <p>Client shall indemnify and hold harmless Provider from claims arising out of: Client&rsquo;s breach of this Agreement; violation of platform terms; violation of applicable law; claims by guests or third parties related to Client&rsquo;s property; or Client&rsquo;s actions affecting listing performance.</p>
+
+          <h3>9. Representations and Warranties</h3>
+          <p>Each Party represents it has full authority to enter into this Agreement. Client additionally represents that it is the lawful owner or authorized manager of the Listing and has authority to grant Provider the account access described herein.</p>
+
+          <h3>10. Dispute Resolution</h3>
+          <p>Disputes shall be resolved first through negotiation, then mediation (if jointly agreed), then binding arbitration in the State of Delaware before a single arbitrator. Nothing prevents either Party from seeking injunctive relief to prevent irreparable harm.</p>
+
+          <h3>11. General Provisions</h3>
+          <p>This Agreement is governed by Delaware law. It constitutes the entire agreement between the Parties. Amendments require written consent of both Parties. Client may not assign without Provider&rsquo;s consent. Provider is an independent contractor. Neither Party is liable for force majeure events.</p>
+
+          <p style="margin-top:16px;text-align:center;font-size:11px;color:var(--g400)">Notices: Admin@RevWhisper.com</p>
+        </div>
+
+        <label class="terms-agree" id="terms-agree">
+          <input type="checkbox" id="agree-check">
+          <div class="terms-checkbox">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <span class="terms-agree-text">I have read and agree to the <strong>RevWhisper Service Agreement</strong> and understand the terms, fees, and cancellation policy.</span>
+        </label>
+      </div>
+      <div class="form-actions">
+        <button class="btn-back" onclick="prevStep()"><span class="arrow">←</span> Back</button>
+        <button class="btn-next accent" onclick="submitForm()" disabled id="btn-submit">Complete Enrollment <span class="arrow">→</span></button>
+      </div>
+    </div>
+
+    <!-- Success State -->
+    <div class="step" data-step="3">
+      <div class="success-state" id="success-state">
+        <div class="success-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="#4A6741" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <h2 class="success-title">You're <em>enrolled.</em></h2>
+        <p class="success-desc">Welcome to RevWhisper. We'll send you onboarding instructions shortly. Check your inbox for next steps.</p>
+        <div class="success-detail">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--accent)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <span>Confirmation sent to <strong id="confirm-email">your email</strong></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="confetti-wrap" id="confetti-wrap"></div>
+
+<script>
+let current = 0;
+const totalSteps = 3;
+let isTransitioning = false;
+
+// Read plan from URL params
+const params = new URLSearchParams(window.location.search);
+const plan = params.get('plan');
+if (plan) {
+  const badge = document.getElementById('plan-badge');
+  if (plan === 'annual') {
+    badge.textContent = '12-Month Annual Plan · $500/mo';
+    badge.style.display = 'inline-flex';
+  } else if (plan === 'monthly') {
+    badge.textContent = '3-Month Monthly Plan · $750/mo';
+    badge.style.display = 'inline-flex';
+  }
+}
+
+// Enable submit when terms agreed
+document.getElementById('agree-check').addEventListener('change', function() {
+  document.getElementById('btn-submit').disabled = !this.checked;
+  document.getElementById('terms-agree').classList.remove('error');
+});
+
+function transitionStep(from, to, direction) {
+  if (isTransitioning) return;
+  isTransitioning = true;
+
+  const fromEl = document.querySelector(`.step[data-step="${from}"]`);
+  const toEl = document.querySelector(`.step[data-step="${to}"]`);
+  if (!fromEl || !toEl) { isTransitioning = false; return; }
+
+  fromEl.classList.remove('active', 'enter-from-below', 'enter-from-above');
+  fromEl.classList.add(direction === 'forward' ? 'exit-up' : 'exit-down');
+
+  toEl.classList.remove('active', 'exit-up', 'exit-down');
+  toEl.style.position = 'relative';
+  toEl.style.opacity = '0';
+  toEl.style.visibility = 'visible';
+  toEl.style.transform = direction === 'forward' ? 'translateY(24px)' : 'translateY(-24px)';
+  toEl.style.transition = 'none';
+  toEl.style.pointerEvents = 'auto';
+
+  void toEl.offsetHeight;
+
+  requestAnimationFrame(() => {
+    toEl.style.transition = '';
+    toEl.classList.add(direction === 'forward' ? 'enter-from-below' : 'enter-from-above');
+    toEl.style.position = '';
+    toEl.style.opacity = '';
+    toEl.style.visibility = '';
+    toEl.style.transform = '';
+    toEl.style.pointerEvents = '';
+  });
+
+  setTimeout(() => {
+    fromEl.classList.remove('exit-up', 'exit-down');
+    fromEl.style.position = '';
+    isTransitioning = false;
+  }, 500);
+}
+
+function validateStep(step) {
+  let valid = true;
+  if (step === 0) {
+    const name = document.getElementById('full-name');
+    const email = document.getElementById('email');
+    const phone = document.getElementById('phone');
+    if (!name.value.trim()) { name.classList.add('error'); valid = false; } else { name.classList.remove('error'); }
+    if (!email.value.trim() || !email.value.includes('@')) { email.classList.add('error'); valid = false; } else { email.classList.remove('error'); }
+    if (!phone.value.trim()) { phone.classList.add('error'); valid = false; } else { phone.classList.remove('error'); }
+  }
+  if (step === 1) {
+    const urls = document.querySelectorAll('.listing-url');
+    let hasValid = false;
+    urls.forEach(input => {
+      const val = input.value.trim();
+      if (val && (val.includes('airbnb.com') || val.includes('airbnb.'))) {
+        hasValid = true;
+        input.classList.remove('error');
+      } else if (val) {
+        input.classList.add('error');
+        valid = false;
+      } else {
+        input.classList.remove('error');
+      }
+    });
+    if (!hasValid) {
+      urls[0].classList.add('error');
+      document.getElementById('listing-error').style.display = 'block';
+      valid = false;
+    } else {
+      document.getElementById('listing-error').style.display = 'none';
+    }
+  }
+  return valid;
+}
+
+function nextStep() {
+  if (!validateStep(current)) return;
+  const from = current;
+  current++;
+  transitionStep(from, current, 'forward');
+}
+
+function prevStep() {
+  if (current > 0) {
+    const from = current;
+    current--;
+    transitionStep(from, current, 'backward');
+  }
+}
+
+// Dynamic listing management
+function addListing() {
+  const container = document.getElementById('listing-entries');
+  const entry = document.createElement('div');
+  entry.className = 'listing-entry';
+  entry.innerHTML = `
+    <div class="input-icon-wrap">
+      <div class="input-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+      </div>
+      <input type="url" class="field-input listing-url" placeholder="https://www.airbnb.com/rooms/..." autocomplete="off">
+    </div>
+    <button type="button" class="listing-remove" onclick="removeListing(this)" title="Remove listing">×</button>
+  `;
+  container.appendChild(entry);
+
+  // Animate in
+  entry.style.opacity = '0';
+  entry.style.transform = 'translateY(8px)';
+  entry.style.transition = 'opacity .3s var(--ease-out-expo), transform .3s var(--ease-out-expo)';
+  void entry.offsetHeight;
+  entry.style.opacity = '1';
+  entry.style.transform = 'translateY(0)';
+
+  // Focus the new input
+  entry.querySelector('.listing-url').focus();
+
+  // Clear error on new input
+  entry.querySelector('.listing-url').addEventListener('input', function() {
+    this.classList.remove('error');
+    document.getElementById('listing-error').style.display = 'none';
+  });
+}
+
+function removeListing(btn) {
+  const entry = btn.closest('.listing-entry');
+  const entries = document.querySelectorAll('.listing-entry');
+  if (entries.length <= 1) return;
+
+  entry.style.opacity = '0';
+  entry.style.transform = 'translateX(-12px)';
+  entry.style.transition = 'opacity .25s, transform .25s';
+  setTimeout(() => entry.remove(), 250);
+}
+
+// Clear errors on input
+document.querySelectorAll('.field-input').forEach(input => {
+  input.addEventListener('input', () => {
+    input.classList.remove('error');
+  });
+});
+
+// Clear listing error on first listing input
+document.querySelector('.listing-url').addEventListener('input', function() {
+  this.classList.remove('error');
+  document.getElementById('listing-error').style.display = 'none';
+});
+
+function launchConfetti() {
+  const wrap = document.getElementById('confetti-wrap');
+  const colors = ['#4A6741','#dce6d8','#b3c5ab','#32302F','#E0DCDA','#706b68','#8aab7f','#c5d6bf'];
+  const count = 60;
+
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.left = (Math.random() * 100) + '%';
+    el.style.top = (-10 - Math.random() * 20) + '%';
+    el.style.width = (5 + Math.random() * 6) + 'px';
+    el.style.height = (5 + Math.random() * 6) + 'px';
+    el.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+    el.style.setProperty('--fall-dur', (1.8 + Math.random() * 1.5) + 's');
+    el.style.setProperty('--spin', (360 + Math.random() * 720) + 'deg');
+    wrap.appendChild(el);
+    setTimeout(() => el.classList.add('go'), Math.random() * 400);
+  }
+  setTimeout(() => { wrap.innerHTML = ''; }, 4000);
+}
+
+function submitForm() {
+  if (!document.getElementById('agree-check').checked) {
+    document.getElementById('terms-agree').classList.add('error');
+    return;
+  }
+
+  // Collect listing URLs
+  const listingUrls = [];
+  document.querySelectorAll('.listing-url').forEach(input => {
+    const val = input.value.trim();
+    if (val) listingUrls.push(val);
+  });
+
+  const data = {
+    plan: plan || 'unknown',
+    name: document.getElementById('full-name').value,
+    email: document.getElementById('email').value,
+    phone: document.getElementById('phone-code').value + ' ' + document.getElementById('phone').value,
+    listings: listingUrls,
+    agreedToTerms: true,
+    submittedAt: new Date().toISOString()
+  };
+
+  console.log('Enrollment submitted:', data);
+
+  // Send data to Make.com webhook
+  fetch('https://hook.us2.make.com/23rh699yc1ob5tcetd6ionr18431yvyr', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+
+  // Show success state
+  document.getElementById('confirm-email').textContent = data.email;
+
+  const from = current;
+  current = totalSteps;
+  transitionStep(from, current, 'forward');
+
+  setTimeout(() => {
+    document.getElementById('success-state').classList.add('revealed');
+    launchConfetti();
+  }, 350);
+
+  // Redirect to home after a delay
+  setTimeout(() => {
+    window.location.href = '/';
+  }, 4000);
+}
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>
