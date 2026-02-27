@@ -247,6 +247,17 @@ body::before{
 .oc-label > div:last-child{position:relative;z-index:1}
 
 /* ── Text Inputs ── */
+/* ── Fee Badges ── */
+.fee-badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px}
+.fee-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:10px 18px;border-radius:100px;
+  font-size:13px;font-weight:500;letter-spacing:.01em;
+  border:1.5px solid var(--accent-border);
+  background:var(--accent-light);color:var(--accent);
+}
+.fee-badge .fee-amount{font-weight:700}
+
 .field{margin-bottom:20px}
 .field-label{display:block;font-size:13px;font-weight:500;color:var(--black);margin-bottom:7px;transition:color .2s}
 .field-input{
@@ -482,9 +493,13 @@ body::before{
 
     <!-- Step 3: Contact Info -->
     <div class="step" data-step="2">
-      <div class="step-eyebrow">Contact Info</div>
-      <h1 class="step-title">How can we <em>reach you?</em></h1>
-      <p class="step-desc">Your contact information helps us coordinate next steps and prepare ahead of the call.</p>
+      <div class="step-eyebrow">Enrollment</div>
+      <h1 class="step-title">Let's get you <em>started.</em></h1>
+      <p class="step-desc">Tell us who you are so we can set up your account and begin onboarding.</p>
+      <div class="fee-badges">
+        <div class="fee-badge">12-Month Annual Plan · <span class="fee-amount">$500/mo</span></div>
+        <div class="fee-badge">One-Time Onboarding Fee · <span class="fee-amount">$998</span></div>
+      </div>
       <div class="field">
         <label class="field-label" for="full-name">Full Name</label>
         <input type="text" class="field-input" id="full-name" placeholder="Jane Doe" autocomplete="name">
@@ -701,6 +716,6 @@ document.querySelectorAll('.field-input').forEach(input => {
   });
 });
 </script>
-
+<script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
