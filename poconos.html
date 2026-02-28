@@ -338,59 +338,33 @@ body{
   background:var(--accent-light);padding:2px 8px;border-radius:8px;
 }
 
-/* ── Hero Logo ── */
-.hero-poconos-wrap{
-  display:flex;align-items:center;justify-content:center;
-  margin:0 auto 20px;
+/* ── Mountain Scenery Background ── */
+.mountain-scenery{
+  position:absolute;bottom:0;left:0;right:0;
+  width:100%;height:260px;
+  pointer-events:none;z-index:0;
+  overflow:hidden;
 }
-.hero-poconos-svg{
-  width:clamp(240px,55vw,360px);height:auto;
-  filter:drop-shadow(0 4px 16px rgba(74,103,65,.08));
+.mountain-scenery svg{width:100%;height:100%;display:block}
+/* Mist layer */
+.scenery-mist{opacity:0;animation:mistIn 2s ease .6s forwards}
+@keyframes mistIn{to{opacity:1}}
+/* Mountain ridges rise up */
+.mountain-ridge{
+  transform:translateY(40px);opacity:0;
+  animation:ridgeRise 1.2s var(--ease-out-expo) forwards;
 }
-/* PA outline draw-in */
-.pa-outline{
-  stroke-dasharray:900;stroke-dashoffset:900;
-  animation:paOutlineDraw 1.6s var(--ease-out-expo) .2s forwards;
-}
-@keyframes paOutlineDraw{to{stroke-dashoffset:0}}
-/* Pin drop */
-.map-pin{
-  opacity:0;transform:translateY(-20px);
-  animation:pinDrop .5s var(--ease-out-back) 1s forwards;
-}
-@keyframes pinDrop{to{opacity:1;transform:translateY(0)}}
-/* Pin pulse rings */
-.pin-pulse{animation:pinPulse 2.5s ease-out 1.4s infinite}
-.pin-pulse-2{animation-delay:2s}
-@keyframes pinPulse{
-  0%{r:8;opacity:.6;stroke-width:1.2}
-  100%{r:28;opacity:0;stroke-width:.3}
-}
-/* Poconos glow fade-in */
-.poconos-glow,.poconos-glow-inner{opacity:0;animation:glowIn .8s ease .8s forwards}
-@keyframes glowIn{to{opacity:1}}
-/* Poconos label */
-.poconos-label{opacity:0;animation:labelIn .5s ease 1.3s forwards}
-@keyframes labelIn{to{opacity:.85}}
-/* Mountain ridges rise */
-.mountain-ridge{transform:translateY(30px);opacity:0;animation:ridgeRise .9s var(--ease-out-expo) .4s forwards}
-.mountain-back{animation-delay:.3s}
-.mountain-front{animation-delay:.5s}
+.ridge-far{animation-delay:.2s}
+.ridge-mid{animation-delay:.4s}
+.ridge-near{animation-delay:.6s}
 @keyframes ridgeRise{to{transform:translateY(0);opacity:1}}
-/* Pine trees fade in */
-.pine-tree{opacity:0;animation:treeIn .6s ease forwards}
-.pine-tree:nth-child(8){animation-delay:.6s}
-.pine-tree:nth-child(9){animation-delay:.75s}
-.pine-tree:nth-child(10){animation-delay:.9s}
-.pine-tree:nth-child(11){animation-delay:.7s}
-.pine-tree:nth-child(12){animation-delay:.85s}
+/* Pine trees fade in staggered */
+.pine-tree{opacity:0;animation:treeIn .7s ease forwards}
+.pine-tree:nth-child(n+6){animation-delay:.7s}
+.pine-tree:nth-child(n+8){animation-delay:.85s}
+.pine-tree:nth-child(n+10){animation-delay:1s}
+.pine-tree:nth-child(n+12){animation-delay:1.1s}
 @keyframes treeIn{to{opacity:1}}
-/* Gentle float on whole illustration */
-.hero-poconos-wrap{animation:poconosFloat 5s ease-in-out 2s infinite}
-@keyframes poconosFloat{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-5px)}
-}
 
 /* ── Slide Inner ── */
 .slide-inner{max-width:640px;width:100%;text-align:center;position:relative;z-index:2;margin:auto}
@@ -601,7 +575,7 @@ body{
   .nav-bar{padding:12px 16px}
   .nav-logo{display:none}
   .hero-svg{width:clamp(180px,65vw,280px)}
-  .hero-poconos-svg{width:clamp(200px,70vw,300px)}
+  .mountain-scenery{height:200px}
   .team-bubble{border-width:2px}
 }
 @media(max-width:400px){
@@ -644,55 +618,93 @@ body{
   <div class="slide active" data-slide="0">
     <div class="slide-inner">
 
-      <!-- Hero Illustration: Poconos Map + Mountains -->
-      <div class="hero-poconos-wrap" id="hero-poconos">
-        <svg class="hero-poconos-svg" viewBox="0 0 360 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- PA State Outline -->
-          <path class="pa-outline" d="M52 58 L58 56 L72 52 L90 48 L120 44 L150 42 L180 41 L210 42 L240 44 L258 46 L272 50 L284 54 L296 52 L308 56 L308 62 L306 72 L302 84 L298 96 L294 106 L288 114 L282 120 L270 126 L256 130 L240 132 L220 134 L200 134 L180 133 L160 132 L140 130 L120 128 L100 126 L82 122 L68 116 L58 108 L52 96 L50 82 L50 70 Z" stroke="var(--accent)" stroke-width="2.2" fill="var(--accent)" fill-opacity=".1" stroke-linejoin="round" stroke-linecap="round"/>
-          <!-- Poconos region highlight -->
-          <ellipse class="poconos-glow" cx="268" cy="62" rx="30" ry="24" fill="var(--accent)" fill-opacity=".18"/>
-          <ellipse class="poconos-glow-inner" cx="268" cy="62" rx="18" ry="14" fill="var(--accent)" fill-opacity=".28"/>
-          <!-- Map pin -->
-          <g class="map-pin" transform="translate(268,38)">
-            <path d="M0 32 C0 32 -16 10 -16 -2 C-16 -11 -9 -18 0 -18 C9 -18 16 -11 16 -2 C16 10 0 32 0 32Z" fill="var(--accent)" stroke="#fff" stroke-width="1.5"/>
-            <circle cx="0" cy="-2" r="6" fill="#fff"/>
-          </g>
-          <!-- Pin pulse rings -->
-          <circle class="pin-pulse pin-pulse-1" cx="268" cy="38" r="8" stroke="var(--accent)" stroke-width="1.5" fill="none" opacity="0"/>
-          <circle class="pin-pulse pin-pulse-2" cx="268" cy="38" r="8" stroke="var(--accent)" stroke-width="1.2" fill="none" opacity="0"/>
-          <!-- Mountain ridgeline -->
-          <path class="mountain-ridge mountain-back" d="M0 220 L30 172 L55 188 L85 156 L110 170 L135 148 L160 165 L185 140 L210 158 L240 135 L265 152 L290 142 L310 160 L335 150 L360 168 L360 220 Z" fill="var(--accent)" fill-opacity=".15"/>
-          <path class="mountain-ridge mountain-front" d="M0 220 L40 180 L65 192 L100 164 L130 178 L155 158 L180 172 L205 152 L235 166 L260 148 L285 162 L315 146 L340 162 L360 155 L360 220 Z" fill="var(--accent)" fill-opacity=".25"/>
-          <!-- Pine trees -->
-          <g class="pine-tree" transform="translate(42,176)">
-            <path d="M0 0 L-8 18 L-4 16 L-10 30 L-5 28 L-12 42 L12 42 L5 28 L10 30 L4 16 L8 18 Z" fill="var(--accent)" fill-opacity=".55"/>
-            <rect x="-2" y="42" width="4" height="6" fill="var(--accent)" fill-opacity=".45" rx="1"/>
-          </g>
-          <g class="pine-tree" transform="translate(78,168)">
-            <path d="M0 0 L-7 16 L-3 14 L-9 26 L-4 24 L-11 38 L11 38 L4 24 L9 26 L3 14 L7 16 Z" fill="var(--accent)" fill-opacity=".4"/>
-            <rect x="-2" y="38" width="4" height="5" fill="var(--accent)" fill-opacity=".35" rx="1"/>
-          </g>
-          <g class="pine-tree" transform="translate(316,152)">
-            <path d="M0 0 L-9 20 L-4 17 L-11 34 L-5 31 L-14 48 L14 48 L5 31 L11 34 L4 17 L9 20 Z" fill="var(--accent)" fill-opacity=".5"/>
-            <rect x="-2" y="48" width="4" height="6" fill="var(--accent)" fill-opacity=".4" rx="1"/>
-          </g>
-          <g class="pine-tree" transform="translate(340,164)">
-            <path d="M0 0 L-6 14 L-3 12 L-8 24 L-3 22 L-9 34 L9 34 L3 22 L8 24 L3 12 L6 14 Z" fill="var(--accent)" fill-opacity=".35"/>
-            <rect x="-1.5" y="34" width="3" height="5" fill="var(--accent)" fill-opacity=".3" rx="1"/>
-          </g>
-          <g class="pine-tree" transform="translate(58,184)">
-            <path d="M0 0 L-5 12 L-2 10 L-7 22 L-3 20 L-8 30 L8 30 L3 20 L7 22 L2 10 L5 12 Z" fill="var(--accent)" fill-opacity=".3"/>
-            <rect x="-1.5" y="30" width="3" height="4" fill="var(--accent)" fill-opacity=".25" rx="1"/>
-          </g>
-          <!-- "POCONOS" label near pin -->
-          <text class="poconos-label" x="268" y="100" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="11" font-weight="700" letter-spacing="3" fill="var(--accent)">POCONOS</text>
-        </svg>
-      </div>
-
       <div class="s-eyebrow"><span class="dot"></span> Poconos STR Conference 2026</div>
       <h1 class="s-title">Your listings deserve smarter <em>revenue.</em></h1>
       <p class="s-body">RevWhisper combines proprietary algorithms with a dedicated tech team to optimize every listing, every night, every market. We turn data into dollars while you focus on your guests.</p>
     </div>
+
+    <!-- Mountain scenery background -->
+    <div class="mountain-scenery">
+      <svg viewBox="0 0 1200 260" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="mist" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+            <stop offset=".3" stop-color="#fff" stop-opacity=".6"/>
+            <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="ridgeFar" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#4A6741" stop-opacity=".08"/>
+            <stop offset="1" stop-color="#4A6741" stop-opacity=".03"/>
+          </linearGradient>
+          <linearGradient id="ridgeMid" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#4A6741" stop-opacity=".14"/>
+            <stop offset="1" stop-color="#4A6741" stop-opacity=".05"/>
+          </linearGradient>
+          <linearGradient id="ridgeNear" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#4A6741" stop-opacity=".22"/>
+            <stop offset="1" stop-color="#4A6741" stop-opacity=".08"/>
+          </linearGradient>
+        </defs>
+        <!-- Far ridge (faintest, tallest peaks) -->
+        <path class="mountain-ridge ridge-far" d="M0 260 L0 140 Q50 95,100 120 Q140 80,180 110 Q230 65,280 100 Q320 55,360 90 Q410 50,460 85 Q500 60,540 80 Q590 45,640 75 Q680 55,720 85 Q770 40,820 70 Q860 50,900 80 Q950 55,1000 75 Q1050 45,1100 70 Q1140 60,1200 90 L1200 260 Z" fill="url(#ridgeFar)"/>
+        <!-- Mid ridge -->
+        <path class="mountain-ridge ridge-mid" d="M0 260 L0 170 Q60 130,120 155 Q170 115,220 140 Q280 100,340 130 Q390 105,440 125 Q500 90,560 115 Q620 95,680 120 Q730 100,780 125 Q840 90,900 115 Q960 100,1020 120 Q1070 95,1120 115 Q1160 105,1200 125 L1200 260 Z" fill="url(#ridgeMid)"/>
+        <!-- Mist band between mid and near -->
+        <rect class="scenery-mist" x="0" y="155" width="1200" height="50" fill="url(#mist)"/>
+        <!-- Near ridge (darkest, closest) -->
+        <path class="mountain-ridge ridge-near" d="M0 260 L0 195 Q70 165,140 185 Q200 155,260 175 Q330 150,400 170 Q460 155,520 168 Q590 145,660 165 Q720 150,780 168 Q850 145,920 162 Q980 150,1040 165 Q1100 152,1160 168 L1200 160 L1200 260 Z" fill="url(#ridgeNear)"/>
+        <!-- Pine trees scattered along the near ridge -->
+        <g class="pine-tree" transform="translate(80,172)">
+          <path d="M0 0 L-7 16 L-3 14 L-9 28 L-4 25 L-11 40 L11 40 L4 25 L9 28 L3 14 L7 16 Z" fill="#4A6741" fill-opacity=".25"/>
+          <rect x="-1.5" y="40" width="3" height="5" fill="#4A6741" fill-opacity=".2" rx="1"/>
+        </g>
+        <g class="pine-tree" transform="translate(160,178)">
+          <path d="M0 0 L-5 12 L-2 10 L-7 22 L-3 20 L-8 30 L8 30 L3 20 L7 22 L2 10 L5 12 Z" fill="#4A6741" fill-opacity=".18"/>
+          <rect x="-1.5" y="30" width="3" height="4" fill="#4A6741" fill-opacity=".14" rx="1"/>
+        </g>
+        <g class="pine-tree" transform="translate(310,165)">
+          <path d="M0 0 L-8 18 L-4 16 L-10 30 L-5 28 L-12 42 L12 42 L5 28 L10 30 L4 16 L8 18 Z" fill="#4A6741" fill-opacity=".2"/>
+          <rect x="-2" y="42" width="4" height="5" fill="#4A6741" fill-opacity=".16" rx="1"/>
+        </g>
+        <g class="pine-tree" transform="translate(440,162)">
+          <path d="M0 0 L-6 14 L-3 12 L-8 24 L-3 22 L-10 36 L10 36 L3 22 L8 24 L3 12 L6 14 Z" fill="#4A6741" fill-opacity=".22"/>
+          <rect x="-1.5" y="36" width="3" height="5" fill="#4A6741" fill-opacity=".18" rx="1"/>
+        </g>
+        <g class="pine-tree" transform="translate(560,160)">
+          <path d="M0 0 L-9 20 L-4 17 L-11 34 L-5 31 L-14 48 L14 48 L5 31 L11 34 L4 17 L9 20 Z" fill="#4A6741" fill-opacity=".2"/>
+          <rect x="-2" y="48" width="4" height="6" fill="#4A6741" fill-opacity=".16" rx="1"/>
+        </g>
+        <g class="pine-tree" transform="translate(650,168)">
+          <path d="M0 0 L-5 12 L-2 10 L-7 22 L-3 20 L-8 30 L8 30 L3 20 L7 22 L2 10 L5 12 Z" fill="#4A6741" fill-opacity=".18"/>
+          <rect x="-1.5" y="30" width="3" height="4" fill="#4A6741" fill-opacity=".14" rx="1"/>
+        </g>
+        <g class="pine-tree" transform="translate(780,158)">
+          <path d="M0 0 L-7 16 L-3 14 L-9 28 L-4 25 L-11 40 L11 40 L4 25 L9 28 L3 14 L7 16 Z" fill="#4A6741" fill-opacity=".22"/>
+          <rect x="-1.5" y="40" width="3" height="5" fill="#4A6741" fill-opacity=".18" rx="1"/>
+        </g>
+        <g class="pine-tree" transform="translate(870,165)">
+          <path d="M0 0 L-6 14 L-3 12 L-8 24 L-3 22 L-10 36 L10 36 L3 22 L8 24 L3 12 L6 14 Z" fill="#4A6741" fill-opacity=".16"/>
+          <rect x="-1.5" y="36" width="3" height="5" fill="#4A6741" fill-opacity=".12" rx="1"/>
+        </g>
+        <g class="pine-tree" transform="translate(1000,160)">
+          <path d="M0 0 L-8 18 L-4 16 L-10 30 L-5 28 L-12 42 L12 42 L5 28 L10 30 L4 16 L8 18 Z" fill="#4A6741" fill-opacity=".2"/>
+          <rect x="-2" y="42" width="4" height="5" fill="#4A6741" fill-opacity=".16" rx="1"/>
+        </g>
+        <g class="pine-tree" transform="translate(1100,170)">
+          <path d="M0 0 L-5 12 L-2 10 L-7 22 L-3 20 L-8 30 L8 30 L3 20 L7 22 L2 10 L5 12 Z" fill="#4A6741" fill-opacity=".18"/>
+          <rect x="-1.5" y="30" width="3" height="4" fill="#4A6741" fill-opacity=".14" rx="1"/>
+        </g>
+        <g class="pine-tree" transform="translate(240,175)">
+          <path d="M0 0 L-6 14 L-3 12 L-8 24 L-3 22 L-10 36 L10 36 L3 22 L8 24 L3 12 L6 14 Z" fill="#4A6741" fill-opacity=".15"/>
+          <rect x="-1.5" y="36" width="3" height="5" fill="#4A6741" fill-opacity=".12" rx="1"/>
+        </g>
+        <g class="pine-tree" transform="translate(1040,172)">
+          <path d="M0 0 L-7 16 L-3 14 L-9 28 L-4 25 L-11 40 L11 40 L4 25 L9 28 L3 14 L7 16 Z" fill="#4A6741" fill-opacity=".15"/>
+          <rect x="-1.5" y="40" width="3" height="5" fill="#4A6741" fill-opacity=".12" rx="1"/>
+        </g>
+      </svg>
+    </div>
+
   </div>
 
   <!-- ═══════════ SLIDE 1: Revenue Management ═══════════ -->
