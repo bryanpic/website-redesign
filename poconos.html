@@ -509,6 +509,86 @@ body{
 .cta-trust-item{font-size:11px;color:var(--g400);display:flex;align-items:center;gap:4px}
 .cta-trust-item svg{color:var(--accent);width:13px;height:13px}
 
+/* ── Slide 0 Action Buttons ── */
+.slide-actions{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  margin-top:24px;flex-wrap:wrap;
+}
+.btn-cta-book{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 24px;border-radius:var(--radius-sm);
+  font-size:14px;font-weight:500;color:#fff;
+  background:var(--accent);border:none;
+  cursor:pointer;font-family:var(--body);
+  transition:transform .2s,box-shadow .2s;
+  box-shadow:0 4px 16px rgba(74,103,65,.25);
+  text-decoration:none;position:relative;overflow:hidden;
+}
+.btn-cta-book:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(74,103,65,.3)}
+.btn-cta-book svg{transition:transform .2s}
+.btn-cta-book:hover svg{transform:translateX(3px)}
+
+.btn-cta-learn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:12px 24px;border-radius:var(--radius-sm);
+  font-size:14px;font-weight:400;color:var(--black);
+  background:transparent;border:1.5px solid var(--g300);
+  cursor:pointer;font-family:var(--body);
+  transition:border-color .15s,box-shadow .15s,transform .15s;
+  text-decoration:none;
+}
+.btn-cta-learn:hover{border-color:var(--g400);box-shadow:var(--sh-sm);transform:translateY(-1px)}
+.btn-cta-learn svg{transition:transform .2s}
+.btn-cta-learn:hover svg{transform:translateX(3px)}
+
+/* ── Team Carousel ── */
+.team-carousel-wrap{width:100%;overflow:hidden;margin-top:28px;position:relative}
+.team-carousel-wrap::before,.team-carousel-wrap::after{
+  content:'';position:absolute;top:0;bottom:0;width:60px;z-index:2;pointer-events:none;
+}
+.team-carousel-wrap::before{left:0;background:linear-gradient(to right,var(--g50) 0%,transparent 100%)}
+.team-carousel-wrap::after{right:0;background:linear-gradient(to left,var(--g50) 0%,transparent 100%)}
+.team-carousel-track{
+  display:flex;gap:32px;width:max-content;
+  animation:teamScroll 28s linear infinite;
+}
+.team-carousel-track:hover{animation-play-state:paused}
+@keyframes teamScroll{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-50%)}
+}
+.team-card{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  flex-shrink:0;width:90px;
+}
+.team-card-img{
+  width:72px;height:72px;border-radius:50%;overflow:hidden;
+  border:2.5px solid var(--accent-border);
+  box-shadow:0 4px 16px rgba(74,103,65,.12);
+  transition:transform .25s var(--ease-out-expo),box-shadow .25s;
+}
+.team-card-img:hover{transform:scale(1.08);box-shadow:0 6px 24px rgba(74,103,65,.2)}
+.team-card-img img{width:100%;height:100%;object-fit:cover;display:block}
+.team-card-name{font-size:12px;font-weight:500;color:var(--black);line-height:1.2;white-space:nowrap}
+.team-card-role{font-size:10px;font-weight:400;color:var(--g400);letter-spacing:.03em;text-transform:uppercase;white-space:nowrap}
+
+/* ── Promo Badge ── */
+.promo-badge{
+  display:inline-flex;align-items:center;gap:10px;
+  margin-top:18px;padding:10px 20px;
+  background:var(--g50);border:1.5px dashed var(--accent-border);
+  border-radius:var(--radius-sm);
+  font-family:var(--body);font-size:13px;color:var(--g500);
+  animation:fadeSlideUp .5s var(--ease-out-expo) .62s both;
+}
+.promo-original{text-decoration:line-through;color:var(--g400);font-weight:400}
+.promo-price{font-size:20px;font-weight:600;color:var(--accent);letter-spacing:-.02em}
+.promo-label{
+  font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  background:var(--accent);color:#fff;padding:3px 7px;border-radius:3px;
+  line-height:1;
+}
+
 /* ── Navigation ── */
 .nav-bar{
   position:fixed;bottom:0;left:0;right:0;z-index:100;
@@ -516,7 +596,9 @@ body{
   background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   border-top:1px solid var(--g200);
   display:flex;align-items:center;justify-content:space-between;
+  transition:transform .4s var(--ease-out-expo),opacity .4s var(--ease-out-expo);
 }
+.nav-bar--hidden{transform:translateY(100%);opacity:0;pointer-events:none}
 .nav-left{display:flex;align-items:center;gap:12px}
 .nav-logo{display:flex;align-items:center;gap:6px;font-family:var(--heading);font-size:16px;font-weight:600;letter-spacing:-.02em;color:var(--black);text-decoration:none}
 .nav-logo-icon{flex-shrink:0}
@@ -559,11 +641,12 @@ body{
   display:inline-flex;align-items:center;gap:6px;
   padding:10px 20px;border-radius:var(--radius-sm);
   font-size:13px;font-weight:500;color:#fff;
-  background:var(--black);border:none;
+  background:var(--accent);border:none;
   cursor:pointer;font-family:var(--body);
   transition:opacity .15s,transform .15s;
+  box-shadow:0 4px 16px rgba(74,103,65,.25);
 }
-.btn-next:hover{opacity:.85;transform:translateY(-1px)}
+.btn-next:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 6px 20px rgba(74,103,65,.3)}
 
 .btn-book{
   display:inline-flex;align-items:center;gap:8px;
@@ -664,7 +747,24 @@ body{
       </div>
       <div class="s-eyebrow"><span class="dot"></span> Poconos STR Conference 2026</div>
       <h1 class="s-title">Your AirBnb could be making <em>more money.</em></h1>
-      <p class="s-body">Our team tracks your Airbnb search position daily, deploys algorithm-timed pricing, and optimizes every part of your listing so you earn more without lifting a finger.</p>
+      <p class="s-body">We increase your Airbnb revenue by tracking your Airbnb search position daily, deploying algorithm-timed pricing, and optimizing every part of your listing. All fully managed by our Revenue experts.</p>
+
+      <div class="slide-actions">
+        <button class="btn-cta-book" data-cal-link="rev-whisper/discovery-poconos" data-cal-config='{"layout":"month_view"}'>
+          Book a call
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        </button>
+        <button class="btn-cta-learn" onclick="nextSlide()">
+          Learn more
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h8M7 3l4 4-4 4"/></svg>
+        </button>
+      </div>
+      <div class="promo-badge">
+        <span class="promo-label">Conference Special</span>
+        <span class="promo-original">$998</span>
+        <span class="promo-price">$498</span>
+        <span style="font-size:11px;color:var(--g500)">onboarding</span>
+      </div>
     </div>
 
     <!-- Mountain scenery background -->
@@ -895,7 +995,7 @@ body{
 
       <div class="s-eyebrow"><span class="dot"></span> Photo Optimization</div>
       <h1 class="s-title">Photos that rank. Not just photos that <em>look good.</em></h1>
-      <p class="s-body">Airbnb's algorithm evaluates your photos for brightness, composition, and quality. We use AI to edit every image so it performs for search.</p>
+      <p class="s-body">Airbnb's algorithm evaluates your photos for brightness, composition, and quality. We use AI to understand your desired guest's booking behavior and our internal graphic designers edit every image to perform for search conversion.</p>
       <div class="s-detail">
         <div class="photo-compare">
           <!-- Before photo -->
@@ -928,7 +1028,7 @@ body{
       <p class="s-body">Book a 20-minute discovery call. We'll pull your listing data and walk you through exactly where you're leaving revenue behind.</p>
 
       <div class="s-cta" style="text-align:center">
-        <a href="https://cal.com/rev-whisper/discovery" class="btn-book" target="_blank" rel="noopener">
+        <a href="https://cal.com/rev-whisper/discovery-poconos" class="btn-book" target="_blank" rel="noopener">
           Book a discovery call
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
         </a>
@@ -941,6 +1041,12 @@ body{
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
             20 min, no commitment
           </div>
+        </div>
+        <div class="promo-badge">
+          <span class="promo-label">Conference Special</span>
+          <span class="promo-original">$998</span>
+          <span class="promo-price">$498</span>
+          <span style="font-size:11px;color:var(--g500)">onboarding</span>
         </div>
       </div>
     </div>
@@ -1190,7 +1296,7 @@ const btnBack = document.getElementById('btn-back');
 const btnNext = document.getElementById('btn-next');
 
 // Transition types per slide boundary
-// 0→1: slide-up, 1→2: slide-left, 2→3: reveal
+// 0→1: slide-up, 1→2: slide-left, 2→3: reveal, 3→4: slide-up
 const transitionTypes = ['slide-up', 'slide-left', 'reveal', 'slide-up'];
 
 const exitClasses = {
@@ -1219,52 +1325,55 @@ const ambientConfigs = [
 ];
 
 function resetSlideAnimations(slideEl) {
-  // Reset SVG draw paths
+  // Robust helper: cancel running animations via Web Animations API,
+  // strip ALL inline animation/transform/opacity/filter so CSS base
+  // states take over, then let the new enter-class re-trigger them.
+  function resetEl(el) {
+    // 1. Cancel every running Animation object (works in all modern browsers)
+    if (el.getAnimations) {
+      el.getAnimations({ subtree: false }).forEach(a => a.cancel());
+    }
+    // 2. Kill inline animation & force reflow so the browser drops the old timeline
+    el.style.animation = 'none';
+    void el.offsetHeight;
+    // 3. Clear ALL inline overrides — let the stylesheet base states win
+    el.style.removeProperty('animation');
+    el.style.removeProperty('transform');
+    el.style.removeProperty('opacity');
+    el.style.removeProperty('filter');
+  }
+
+  // SVG draw-paths (trend line, etc.)
   slideEl.querySelectorAll('.draw-path').forEach(p => {
+    resetEl(p);
     const len = p.style.getPropertyValue('--dash-len') || p.getAttribute('stroke-dasharray');
-    p.style.animation = 'none';
-    void p.offsetHeight;
-    p.style.animation = '';
     if (len) p.setAttribute('stroke-dashoffset', len);
   });
-  // Reset other animated SVG elements
-  slideEl.querySelectorAll('.chart-bar').forEach(el => {
-    el.style.animation = 'none';
-    el.style.transform = 'scaleY(0)';
-    void el.offsetHeight;
-    el.style.animation = '';
-  });
-  // Reset HTML audit card
-  slideEl.querySelectorAll('.audit-card,.audit-row-item').forEach(el => {
-    el.style.animation = 'none';
-    void el.offsetHeight;
-    el.style.animation = '';
-  });
-  slideEl.querySelectorAll('.pulse-dot,.trend-dot,.chart-label,.grid-line,.enhance-badge,.sparkle,.photo-thumb').forEach(el => {
-    el.style.animation = 'none';
-    void el.offsetHeight;
-    el.style.animation = '';
-  });
-  // (SVG check-paths removed — audit card is now HTML)
-  // Reset word animations
-  slideEl.querySelectorAll('.word').forEach(w => {
-    w.style.animation = 'none';
-    void w.offsetHeight;
-    w.style.animation = '';
-  });
-  // Reset underline animations (force ::after re-trigger by toggling class)
-  slideEl.querySelectorAll('.s-title em').forEach(em => {
-    em.style.animation = 'none';
-    void em.offsetHeight;
-    em.style.animation = '';
-  });
-  // Reset logo animations
-  slideEl.querySelectorAll('.logo-bubble,.logo-wave').forEach(el => {
-    el.style.animation = 'none';
-    void el.offsetHeight;
-    el.style.animation = '';
-  });
-  // Reset counters
+
+  // Chart bars, grid lines, trend dots, chart labels
+  slideEl.querySelectorAll(
+    '.chart-bar,.grid-line,.trend-dot,.trend-line,.chart-label,.pulse-dot'
+  ).forEach(resetEl);
+
+  // Audit cards & row items (slide 2)
+  slideEl.querySelectorAll('.audit-card,.audit-row-item').forEach(resetEl);
+
+  // Photo AI elements (slide 3)
+  slideEl.querySelectorAll('.enhance-badge,.sparkle,.photo-thumb').forEach(resetEl);
+
+  // Generic anim-target elements (used across multiple slides)
+  slideEl.querySelectorAll('.anim-target').forEach(resetEl);
+
+  // Word-by-word title animations
+  slideEl.querySelectorAll('.word').forEach(resetEl);
+
+  // Underline emphasis animations
+  slideEl.querySelectorAll('.s-title em').forEach(resetEl);
+
+  // Logo animations (slide 0)
+  slideEl.querySelectorAll('.logo-bubble,.logo-wave').forEach(resetEl);
+
+  // Reset counters back to zero
   slideEl.querySelectorAll('[data-count-to]').forEach(el => {
     el.textContent = '0' + (el.dataset.countSuffix || '');
   });
@@ -1364,6 +1473,9 @@ function animateCounter(el, target, duration, prefix, suffix) {
 function updateNav() {
   btnBack.disabled = current === 0;
   btnNext.style.display = current === totalSlides - 1 ? 'none' : '';
+
+  // Hide nav-bar on slide 0 (landing page uses its own CTA buttons)
+  document.querySelector('.nav-bar').classList.toggle('nav-bar--hidden', current === 0);
 
   document.querySelectorAll('.progress-dot').forEach((dot, i) => {
     dot.classList.remove('active', 'done');
@@ -1648,6 +1760,59 @@ document.addEventListener('keydown', e => {
     observer.observe(s, { attributes: true, attributeFilter: ['class'] });
   });
 })();
+
+// ═══════════════════════════════════════════════
+// 12. CAL.COM EMBED — MODAL BOOKING + AUTO-REDIRECT
+// ═══════════════════════════════════════════════
+(function(C, A, L) {
+  let p = function(a, ar) { a.q.push(ar); };
+  let d = C.document;
+  C.Cal = C.Cal || function() {
+    let cal = C.Cal;
+    if (!cal.loaded) {
+      cal.ns = {};
+      cal.q = cal.q || [];
+      d.head.appendChild(d.createElement("script")).src = A;
+      cal.loaded = true;
+    }
+    if (ar = arguments) {
+      if (ar[0] === L) {
+        const api = function() { p(api, arguments); };
+        const namespace = ar[1];
+        api.q = api.q || [];
+        if (typeof namespace === "string") {
+          cal.ns[namespace] = cal.ns[namespace] || api;
+          p(cal.ns[namespace], ar);
+          p(cal, ["initNamespace", namespace]);
+        } else p(cal, ar);
+        return typeof namespace === "string" ? cal.ns[namespace] : undefined;
+      }
+      p(cal, ar);
+    }
+  };
+})(window, "https://app.cal.com/embed/embed.js", "init");
+
+Cal("init", { origin: "https://cal.com" });
+
+// Style the Cal.com modal
+Cal("ui", {
+  cssVarsPerTheme: {
+    light: { "cal-brand": "#4A6741" }
+  },
+  hideEventTypeDetails: false,
+  layout: "month_view"
+});
+
+// After a booking completes, auto-advance to the presentation (slide 1)
+Cal("on", {
+  action: "bookingSuccessful",
+  callback: function() {
+    // Small delay to let the user see the confirmation
+    setTimeout(function() {
+      if (current === 0) nextSlide();
+    }, 1500);
+  }
+});
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
 </body>
