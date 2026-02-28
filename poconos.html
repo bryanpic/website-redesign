@@ -89,21 +89,11 @@ body{
 @keyframes orbFade{
   to{opacity:0;transform:scale(.5)}
 }
-.intro-logo{
-  position:absolute;z-index:3;
-  opacity:0;transform:scale(.85);
-  transition:opacity .45s ease,transform .45s var(--ease-out-expo);
-}
-.intro-logo.visible{opacity:1;transform:scale(1)}
-.intro-logo.burst{
-  opacity:0;transform:scale(2);
-  transition:opacity .3s ease,transform .45s var(--ease-out-expo);
-}
-.deck{opacity:0;transition:opacity .5s ease .1s}
+.deck{opacity:0;transition:opacity .5s ease}
 .deck.revealed{opacity:1}
-.nav-bar{opacity:0;transition:opacity .4s ease .3s}
+.nav-bar{opacity:0;transition:opacity .4s ease .15s}
 .nav-bar.revealed{opacity:1}
-.progress-bar{opacity:0;transition:opacity .4s ease .3s}
+.progress-bar{opacity:0;transition:opacity .4s ease .15s}
 .progress-bar.revealed{opacity:1}
 
 /* ── Canvas Background ── */
@@ -605,12 +595,6 @@ body{
 <div class="intro-overlay" id="intro-overlay">
   <div class="ripple-container" id="ripples"></div>
   <div class="intro-orb"></div>
-  <div class="intro-logo" id="intro-logo">
-    <svg viewBox="0 0 48 48" width="120" height="120" fill="none">
-      <path d="M6 20C6 12 12 6 22 6H26C36 6 42 12 42 20C42 28 36 34 26 34H20L12 40V34C8.5 32 6 27 6 20Z" stroke="#32302F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      <path d="M15 21C15 21 17 14 19.5 14C22 14 22 28 24.5 28C27 28 27 16 29 16C31 16 32 22 33 22" stroke="#32302F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  </div>
 </div>
 
 <!-- Canvas particle background -->
@@ -879,7 +863,6 @@ body{
 (function() {
   const overlay = document.getElementById('intro-overlay');
   const container = document.getElementById('ripples');
-  const logoEl = document.getElementById('intro-logo');
   const count = 7;
 
   // Spawn ripple rings and fills
@@ -900,20 +883,26 @@ body{
     }
   }
 
-  // Show logo after ripples start expanding
-  setTimeout(() => logoEl.classList.add('visible'), 700);
+  // Reveal deck content behind overlay FIRST (invisible behind white overlay),
+  // then fade overlay out. This prevents any flash of bare background.
+  setTimeout(function() {
+    // Make deck opaque while still hidden behind the white overlay
+    document.querySelector('.deck').classList.add('revealed');
+    document.querySelector('.nav-bar').classList.add('revealed');
+    document.querySelector('.progress-bar').classList.add('revealed');
 
-  // Burst logo and reveal deck
-  setTimeout(() => {
-    logoEl.classList.add('burst');
-    setTimeout(() => {
-      overlay.classList.add('fade-out');
-      document.querySelector('.deck').classList.add('revealed');
-      document.querySelector('.nav-bar').classList.add('revealed');
-      document.querySelector('.progress-bar').classList.add('revealed');
-      setTimeout(() => overlay.classList.add('hidden'), 700);
-    }, 350);
-  }, 2200);
+    // Wait one frame for deck to be fully painted, then fade overlay
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        overlay.classList.add('fade-out');
+        // Remove from layout after fade completes
+        overlay.addEventListener('transitionend', function handler() {
+          overlay.classList.add('hidden');
+          overlay.removeEventListener('transitionend', handler);
+        });
+      });
+    });
+  }, 2000);
 })();
 
 // ═══════════════════════════════════════════════
