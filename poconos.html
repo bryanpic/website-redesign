@@ -4,7 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RevWhisper | Poconos STR Conference</title>
-<link rel="icon" href="rev-whisper-speech-wave-svg.svg" type="image/svg+xml">
+<meta name="description" content="Join the RevWhisper team at the Poconos Short-Term Rental Conference. Learn AI-driven strategies to boost your Airbnb revenue from industry experts.">
+<link rel="canonical" href="https://revwhisper.com/poconos">
+<meta property="og:type" content="website">
+<meta property="og:title" content="RevWhisper | Poconos STR Conference">
+<meta property="og:description" content="Join the RevWhisper team at the Poconos Short-Term Rental Conference. Learn AI-driven strategies to boost your Airbnb revenue.">
+<meta property="og:url" content="https://revwhisper.com/poconos">
+<meta property="og:site_name" content="RevWhisper">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="icons/favicon-light.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
+<link rel="icon" href="icons/favicon-dark.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="icons/favicon-light.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Sans:wght@200;300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
@@ -117,7 +127,7 @@ body{
 }
 
 /* ── Slides Container ── */
-.deck{position:relative;width:100%;height:100vh;overflow:hidden;z-index:1}
+.deck{position:relative;width:100%;height:100vh;height:100dvh;overflow:hidden;z-index:1}
 
 .slide{
   position:absolute;inset:0;
@@ -128,7 +138,7 @@ body{
   transition:none;
   pointer-events:none;
   will-change:transform,opacity;
-  overflow-y:auto;overflow-x:hidden;
+  overflow:hidden;
 }
 .slide.active{
   opacity:1;visibility:visible;
@@ -370,10 +380,15 @@ body{
 .slide-inner{max-width:640px;width:100%;text-align:center;position:relative;z-index:2;margin:auto}
 
 /* ── Typography ── */
+.s-logo{display:block;margin:0 auto 20px}
+.s-logo svg{width:52px;height:52px}
+
 .s-eyebrow{
   display:inline-flex;align-items:center;gap:8px;
-  font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--accent);margin-bottom:16px;
+  font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:20px;
+  background:rgba(74,103,65,.07);padding:6px 18px;border-radius:24px;
+  border:1px solid rgba(74,103,65,.13);
 }
 .s-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
 
@@ -462,8 +477,7 @@ body{
 }
 .photo-compare-card:hover .photo-compare-img{transform:scale(1.03)}
 @media(max-width:640px){
-  .photo-compare{grid-template-columns:1fr}
-  .photo-img-wrap{height:180px}
+  .photo-img-wrap{height:140px}
 }
 
 /* ── Team Bubbles ── */
@@ -505,7 +519,6 @@ body{
 }
 .nav-left{display:flex;align-items:center;gap:12px}
 .nav-logo{display:flex;align-items:center;gap:6px;font-family:var(--heading);font-size:16px;font-weight:600;letter-spacing:-.02em;color:var(--black);text-decoration:none}
-.nav-logo em{font-style:italic;color:var(--accent)}
 .nav-logo-icon{flex-shrink:0}
 
 /* Progress dots with connecting lines */
@@ -568,18 +581,43 @@ body{
 
 /* ── Responsive ── */
 @media(max-width:640px){
-  .slide{padding:16px 20px 90px}
+  .slide{padding:12px 20px 64px}
+  .s-title{font-size:clamp(28px,7vw,44px);margin-bottom:12px}
+  .s-eyebrow{margin-bottom:12px}
+  .s-body{font-size:13px;margin-bottom:16px}
+  .s-logo{margin-bottom:12px}
   .detail-grid{grid-template-columns:1fr;gap:8px}
-  .metric-row{gap:16px}
+  .metric-row{gap:12px;margin-bottom:16px}
+  .feature-list{margin-bottom:16px}
+  .feature-item{padding:6px 0}
+  .feature-text{font-size:12px}
   .before-after{grid-template-columns:1fr}
   .nav-bar{padding:12px 16px}
   .nav-logo{display:none}
-  .hero-svg{width:clamp(180px,65vw,280px)}
-  .mountain-scenery{height:340px}
+  .hero-svg{width:clamp(180px,65vw,280px);margin-bottom:12px}
+  .mountain-scenery{height:240px}
   .team-bubble{border-width:2px}
 }
 @media(max-width:400px){
-  .metric-row{flex-direction:column;gap:12px}
+  .metric-row{flex-direction:column;gap:8px}
+}
+/* Short viewports */
+@media(max-height:700px){
+  .s-title{font-size:clamp(24px,5.5vw,36px);margin-bottom:8px}
+  .s-eyebrow{margin-bottom:8px;font-size:11px;padding:4px 14px}
+  .s-body{font-size:12px;margin-bottom:12px;line-height:1.6}
+  .s-logo{margin-bottom:8px}
+  .s-logo svg{width:36px;height:36px}
+  .hero-svg{width:clamp(140px,40vw,220px);margin-bottom:8px}
+  .photo-img-wrap{height:110px}
+  .metric-row{margin-bottom:12px;gap:10px}
+  .metric-val{font-size:clamp(18px,4vw,24px)}
+  .feature-item{padding:4px 0}
+  .feature-text{font-size:11px;line-height:1.5}
+  .feature-list{margin-bottom:12px}
+  .mountain-scenery{height:180px}
+  .slide{padding-top:8px}
+  .cta-trust{margin-top:10px}
 }
 
 /* ── Reduced Motion ── */
@@ -618,9 +656,15 @@ body{
   <div class="slide active" data-slide="0">
     <div class="slide-inner">
 
+      <div class="s-logo">
+        <svg viewBox="0 0 48 48" width="52" height="52" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 20C6 12 12 6 22 6H26C36 6 42 12 42 20C42 28 36 34 26 34H20L12 40V34C8.5 32 6 27 6 20Z" stroke="var(--black)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M15 21C15 21 17 14 19.5 14C22 14 22 28 24.5 28C27 28 27 16 29 16C31 16 32 22 33 22" stroke="var(--black)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
       <div class="s-eyebrow"><span class="dot"></span> Poconos STR Conference 2026</div>
-      <h1 class="s-title">Your listings deserve smarter <em>revenue.</em></h1>
-      <p class="s-body">RevWhisper combines proprietary algorithms with a dedicated tech team to optimize every listing, every night, every market. We turn data into dollars while you focus on your guests.</p>
+      <h1 class="s-title">Your AirBnb could be making <em>more money.</em></h1>
+      <p class="s-body">Our team tracks your Airbnb search position daily, deploys algorithm-timed pricing, and optimizes every part of your listing so you earn more without lifting a finger.</p>
     </div>
 
     <!-- Mountain scenery background -->
@@ -858,14 +902,14 @@ body{
           <div class="photo-compare-card before">
             <div class="photo-compare-label before">Before</div>
             <div class="photo-img-wrap">
-              <img src="livingroom-before.jpg" alt="Living room before AI enhancement" class="photo-compare-img">
+              <img src="images/properties/livingroom-before.webp" alt="Living room before AI enhancement" class="photo-compare-img">
             </div>
           </div>
           <!-- After photo -->
           <div class="photo-compare-card after">
             <div class="photo-compare-label after">After AI Enhancement</div>
             <div class="photo-img-wrap">
-              <img src="livingrooom-after.jpeg" alt="Living room after AI enhancement" class="photo-compare-img">
+              <img src="images/properties/livingroom-after.webp" alt="Living room after AI enhancement" class="photo-compare-img">
             </div>
           </div>
         </div>
@@ -909,7 +953,7 @@ body{
   <div class="nav-left">
     <a href="/" class="nav-logo">
       <svg class="nav-logo-icon" viewBox="0 0 48 48" width="24" height="24" fill="none"><path d="M6 20C6 12 12 6 22 6H26C36 6 42 12 42 20C42 28 36 34 26 34H20L12 40V34C8.5 32 6 27 6 20Z" stroke="#32302F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 21C15 21 17 14 19.5 14C22 14 22 28 24.5 28C27 28 27 16 29 16C31 16 32 22 33 22" stroke="#32302F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Rev<em>Whisper</em>
+      RevWhisper
     </a>
     <div class="progress">
       <div class="progress-dot active" data-dot="0"></div>
@@ -1398,19 +1442,20 @@ document.addEventListener('keydown', e => {
   const slide4El = document.querySelector('.slide[data-slide="4"]');
   const slideInner = slide4El ? slide4El.querySelector('.slide-inner') : null;
   const members = [
-    { file: 'Alex.png',      size: 72 },
-    { file: 'Angela 1.png',  size: 58 },
-    { file: 'Azmeree.png',   size: 52 },
-    { file: 'Bryan.png',     size: 66 },
-    { file: 'Cady.png',      size: 54 },
-    { file: 'Chris.png',     size: 60 },
-    { file: 'David.png',     size: 56 },
-    { file: 'Marisa.png',    size: 64 },
-    { file: 'Nic.png',       size: 50 },
-    { file: 'Spencer.png',   size: 68 },
+    { file: 'images/team/alex.webp',      size: 72 },
+    { file: 'images/team/angela-1.webp',  size: 58 },
+    { file: 'images/team/azmeree.webp',   size: 52 },
+    { file: 'images/team/bryan.webp',     size: 66 },
+    { file: 'images/team/cady.webp',      size: 54 },
+    { file: 'images/team/chris.webp',     size: 60 },
+    { file: 'images/team/david.webp',     size: 56 },
+    { file: 'images/team/marisa.webp',    size: 64 },
+    { file: 'images/team/nic.webp',       size: 50 },
+    { file: 'images/team/spencer.webp',   size: 68 },
   ];
 
   const PAD = 10; // wall inset so bubbles stay fully on screen
+  const navBar = document.querySelector('.nav-bar');
   const bubbles = [];
   const W = () => container.offsetWidth || window.innerWidth;
   const H = () => container.offsetHeight || window.innerHeight;
@@ -1475,6 +1520,8 @@ document.addEventListener('keydown', e => {
 
   function step() {
     const w = W(), h = H();
+    const navH = navBar ? navBar.offsetHeight : 0;
+    const bottomLimit = h - navH;
     const ex = getExclusion();
 
     for (let i = 0; i < bubbles.length; i++) {
@@ -1486,7 +1533,7 @@ document.addEventListener('keydown', e => {
       if (b.x <= PAD)              { b.x = PAD;            b.vx = Math.abs(b.vx); }
       if (b.x + b.size >= w - PAD) { b.x = w - PAD - b.size; b.vx = -Math.abs(b.vx); }
       if (b.y <= PAD)              { b.y = PAD;            b.vy = Math.abs(b.vy); }
-      if (b.y + b.size >= h - PAD) { b.y = h - PAD - b.size; b.vy = -Math.abs(b.vy); }
+      if (b.y + b.size >= bottomLimit - PAD) { b.y = bottomLimit - PAD - b.size; b.vy = -Math.abs(b.vy); }
 
       // Exclusion zone bounce (keep bubbles out of center text area)
       if (ex) {
@@ -1568,6 +1615,38 @@ document.addEventListener('keydown', e => {
     new MutationObserver(checkSlide).observe(slide4El, { attributes: true, attributeFilter: ['class'] });
   }
   checkSlide();
+})();
+
+// ═══════════════════════════════════════════════
+// 11. AUTO-FIT SLIDES TO VIEWPORT
+// ═══════════════════════════════════════════════
+(function() {
+  function fitSlides() {
+    document.querySelectorAll('.slide-inner').forEach(inner => {
+      // Reset any previous scale so we measure natural size
+      inner.style.transform = '';
+      inner.style.transformOrigin = '';
+      const slide = inner.closest('.slide');
+      if (!slide) return;
+      const cs = getComputedStyle(slide);
+      const padTop = parseFloat(cs.paddingTop) || 0;
+      const padBot = parseFloat(cs.paddingBottom) || 0;
+      const available = slide.clientHeight - padTop - padBot;
+      const needed = inner.scrollHeight;
+      if (needed > available && available > 0) {
+        const scale = Math.max(available / needed, 0.65);
+        inner.style.transform = 'scale(' + scale + ')';
+        inner.style.transformOrigin = 'center top';
+      }
+    });
+  }
+  fitSlides();
+  window.addEventListener('resize', fitSlides);
+  // Re-fit after slide transitions
+  const observer = new MutationObserver(() => requestAnimationFrame(fitSlides));
+  document.querySelectorAll('.slide').forEach(s => {
+    observer.observe(s, { attributes: true, attributeFilter: ['class'] });
+  });
 })();
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
